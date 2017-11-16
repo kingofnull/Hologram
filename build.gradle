@@ -1,0 +1,23 @@
+buildscript {
+    repositories {
+         mavenLocal()
+        mavenCentral()
+        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.0.0'
+        classpath 'com.jakewharton.hugo:hugo-plugin:1.2.1'
+        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
+
+    }
+}
+allprojects {
+    repositories {
+        maven { url 'https://maven.google.com' }
+        maven { url 'https://jitpack.io' }
+        maven { url "https://s3.amazonaws.com/repo.commonsware.com" }
+        jcenter()
+
+    }
+}
