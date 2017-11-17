@@ -3,6 +3,7 @@ package io.github.froger.instamaterial.ui.activity;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.CoordinatorLayout;
@@ -31,6 +32,8 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
     private static final int ANIM_DURATION_TOOLBAR = 300;
     private static final int ANIM_DURATION_FAB = 400;
 
+    private static final String MY_PREFS_NAME = "USER_INFO";
+
     @BindView(R.id.rvFeed)
     RecyclerView rvFeed;
     @BindView(R.id.btnCreate)
@@ -46,6 +49,22 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        SharedPreferences sharedPrefs = getSharedPreferences(MY_PREFS_NAME, MODE_PRIVATE);
+        SharedPreferences.Editor ed;
+
+        if(!sharedPrefs.contains("initialized")){
+            ed = sharedPrefs.edit();
+
+            //Indicate that the default shared prefs have been set
+            ed.putBoolean("initialized", true);
+
+            //Set some default shared pref
+            ed.putString("myDefString", "wowsaBowsa");
+
+            ed.commit();
+        }
+
 
         Intent intent = new Intent(this, LoginActivity.class);
         startActivityForResult(intent, 12);
