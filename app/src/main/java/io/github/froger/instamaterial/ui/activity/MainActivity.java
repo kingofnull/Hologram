@@ -11,12 +11,18 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.animation.OvershootInterpolator;
 
+import java.io.IOException;
+
 import butterknife.BindView;
 import butterknife.OnClick;
+import dev.niekirk.com.instagram4android.Instagram4Android;
+import dev.niekirk.com.instagram4android.requests.payload.InstagramLoginResult;
+import io.github.froger.instamaterial.InstaMaterialApplication;
 import io.github.froger.instamaterial.R;
 import io.github.froger.instamaterial.Utils;
 import io.github.froger.instamaterial.ui.adapter.FeedAdapter;
@@ -32,7 +38,6 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
     private static final int ANIM_DURATION_TOOLBAR = 300;
     private static final int ANIM_DURATION_FAB = 400;
 
-    private static final String MY_PREFS_NAME = "USER_INFO";
 
     @BindView(R.id.rvFeed)
     RecyclerView rvFeed;
@@ -45,29 +50,49 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
 
     private boolean pendingIntroAnimation;
 
+    private Instagram4Android instagram;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        SharedPreferences sharedPrefs = getSharedPreferences(MY_PREFS_NAME, MODE_PRIVATE);
-        SharedPreferences.Editor ed;
+        this.instagram = ((InstaMaterialApplication) this.getApplication()).getInstagram();
 
-        if(!sharedPrefs.contains("initialized")){
-            ed = sharedPrefs.edit();
+        SharedPreferences sharedPrefs = getSharedPreferences("USER_INFO", MODE_PRIVATE);
+        SharedPreferences.Editor ed = sharedPrefs.edit();
+
+        if (!sharedPrefs.contains("initialized")) {
+
+            Intent intent = new Intent(this, LoginActivity.class);
+            startActivity(intent);
 
             //Indicate that the default shared prefs have been set
             ed.putBoolean("initialized", true);
 
             //Set some default shared pref
-            ed.putString("myDefString", "wowsaBowsa");
+            ed.putString("Username", "wowsaBowsa");
+            ed.putString("Password", "wowsaBowsa");
 
             ed.commit();
+        } else {
+
+            instagram = Instagram4Android.builder()
+                    .username(sharedPrefs.getString("Username", ""))
+                    .password(sharedPrefs.getString("Password", ""))
+                    .build();
+
+            instagram.setup();
+
+            try {
+                InstagramLoginResult instagramLoginResult  = instagram.login();
+                Log.i("Login status", "Login success!");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
         }
 
-
-        Intent intent = new Intent(this, LoginActivity.class);
-        startActivityForResult(intent, 12);
 
         return;
 

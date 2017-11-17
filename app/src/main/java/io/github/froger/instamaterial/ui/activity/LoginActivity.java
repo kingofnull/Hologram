@@ -3,21 +3,20 @@ package io.github.froger.instamaterial.ui.activity;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
-import android.content.pm.PackageManager;
-import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
 import android.app.LoaderManager.LoaderCallbacks;
-
 import android.content.CursorLoader;
 import android.content.Loader;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
-
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
+import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -30,26 +29,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import dev.niekirk.com.instagram4android.Instagram4Android;
-import dev.niekirk.com.instagram4android.requests.InstagramFollowRequest;
-import dev.niekirk.com.instagram4android.requests.InstagramLoginRequest;
-import dev.niekirk.com.instagram4android.requests.InstagramReelsTrayRequest;
-import dev.niekirk.com.instagram4android.requests.InstagramSearchUsernameRequest;
-import dev.niekirk.com.instagram4android.requests.InstagramUserStoryFeedRequest;
-import dev.niekirk.com.instagram4android.requests.payload.InstagramLoginPayload;
 import dev.niekirk.com.instagram4android.requests.payload.InstagramLoginResult;
-import dev.niekirk.com.instagram4android.requests.payload.InstagramReelsTrayFeedResult;
-import dev.niekirk.com.instagram4android.requests.payload.InstagramSearchUsernameResult;
-import dev.niekirk.com.instagram4android.requests.payload.InstagramStoryTray;
-import dev.niekirk.com.instagram4android.requests.payload.InstagramUser;
-import dev.niekirk.com.instagram4android.requests.payload.InstagramUserStoryFeedResult;
-import dev.niekirk.com.instagram4android.util.InstagramGenericUtil;
 import io.github.froger.instamaterial.R;
-import okhttp3.HttpUrl;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -162,7 +147,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      * If there are form errors (invalid email, missing fields, etc.), the
      * errors are presented and no actual login attempt is made.
      */
-    private void attemptLogin(){
+    private void attemptLogin() {
         if (mAuthTask != null) {
             return;
         }
@@ -328,47 +313,25 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         protected Boolean doInBackground(Void... params) {
             // TODO: attempt authentication against a network service.
 
-            Instagram4Android instagram = Instagram4Android.builder().username("omidd1315").password("49136712").build();
+            SharedPreferences sharedPrefs = getSharedPreferences("USER_INFO", MODE_PRIVATE);
+            SharedPreferences.Editor ed = sharedPrefs.edit();
+
+            Instagram4Android instagram = Instagram4Android.builder().username(mEmail).password(mPassword).build();
             instagram.setup();
             try {
 
                 InstagramLoginResult instagramLoginResult = instagram.login();
-                Log.i("login status", "attemptLogin: "+instagramLoginResult.getStatus());
+                Log.i("Login status", "Login success!");
 
-                // Get stories (the ones you see at the top of your homepage)
-                InstagramReelsTrayFeedResult result = instagram.sendRequest(new InstagramReelsTrayRequest());
-                List<InstagramStoryTray> trays = result.getTray();
+                // Indicate that the default shared prefs have been set
+                ed.putBoolean("initialized", true);
 
-                Log.i("login status", "attemptLogin: "+trays.toString());
+                //Set some default shared pref
+                ed.putString("Username", mEmail);
+                ed.putString("Password", mPassword);
 
-                List<InstagramUserStoryFeedResult> userStories = new ArrayList<>();
-                for(InstagramStoryTray tray : trays) {
-                    if(tray != null) {
-                        userStories.add(instagram.sendRequest(new InstagramUserStoryFeedRequest("" + tray.getUser().getPk())));
+                ed.commit();
 
-                        Log.e("User Id","User: "+tray.getUser().getUsername());
-                    }
-                }
-
-                Log.i("login status", "attemptLogin: "+userStories.toString());
-
-                // To print the url's of the first items in everyones story do this
-                for(InstagramUserStoryFeedResult story : userStories) {
-                    if(story.getReel() == null) {
-                        System.out.println("Null check for safety, hardly ever null");
-                    } else {
-                        System.out.println(story.getReel().getItems().get(0).getImage_versions2().getCandidates().get(0).getUrl());
-                    }
-                }
-
-                // Get user info
-                InstagramSearchUsernameResult result2 = instagram.sendRequest(new InstagramSearchUsernameRequest("omidd1315"));
-                InstagramUser user = result2.getUser();
-
-                System.out.println(user.toString());
-
-
-                //instagram.sendRequest(new InstagramFollowRequest(user.getPk()));
 
             } catch (Exception e) {
 
