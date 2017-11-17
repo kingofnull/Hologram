@@ -3,8 +3,10 @@ package io.github.froger.instamaterial.ui.activity;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.app.Application;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.CursorLoader;
+import android.content.Intent;
 import android.content.Loader;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -71,6 +73,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         populateAutoComplete();
@@ -190,7 +193,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            mAuthTask = new UserLoginTask(this, email, password);
+            mAuthTask = new UserLoginTask( email, password);
             mAuthTask.execute((Void) null);
         }
 
@@ -305,12 +308,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         private final String mEmail;
         private final String mPassword;
-        private final LoginActivity loginActivity;
 
-        UserLoginTask(LoginActivity loginActivity, String email, String password) {
+        UserLoginTask(String email, String password) {
             mEmail = email;
             mPassword = password;
-            this.loginActivity = loginActivity;
         }
 
         @Override
@@ -336,7 +337,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
                 ed.commit();
 
-                ((InstaMaterialApplication) loginActivity.getApplication()).setInstagram(instagram);
+                ((InstaMaterialApplication) LoginActivity.this.getApplication()).setInstagram(instagram);
 
             } catch (Exception e) {
 

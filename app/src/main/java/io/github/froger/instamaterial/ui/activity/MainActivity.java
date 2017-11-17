@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.CoordinatorLayout;
@@ -72,19 +73,10 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
             Log.i("Username", sharedPrefs.getString("Username", ""));
             Log.i("Username", sharedPrefs.getString("Password", ""));
 
-            instagram = Instagram4Android.builder()
-                    .username(sharedPrefs.getString("Username", ""))
-                    .password(sharedPrefs.getString("Password", ""))
-                    .build();
+            String email = sharedPrefs.getString("Username", "");
+            String password = sharedPrefs.getString("Password", "");
 
-            instagram.setup();
-
-            try {
-                InstagramLoginResult instagramLoginResult = instagram.login();
-                Log.i("Login status", "Login success!");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            new UserLoginTask(email, password).execute((Void) null);
 
         }
 
@@ -240,5 +232,75 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
 
     public void showLikedSnackbar() {
         Snackbar.make(clContent, "Liked!", Snackbar.LENGTH_SHORT).show();
+    }
+
+
+    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
+
+        private final String mEmail;
+        private final String mPassword;
+
+        UserLoginTask(String email, String password) {
+            mEmail = email;
+            mPassword = password;
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            // TODO: attempt authentication against a network service.
+
+            SharedPreferences sharedPrefs = getSharedPreferences("USER_INFO", MODE_PRIVATE);
+            SharedPreferences.Editor ed = sharedPrefs.edit();
+
+            Instagram4Android instagram = Instagram4Android.builder().username(mEmail).password(mPassword).build();
+            instagram.setup();
+            try {
+
+                InstagramLoginResult instagramLoginResult = instagram.login();
+                Log.i("Login status", "Login success!");
+
+                // Indicate that the default shared prefs have been set
+                ed.putBoolean("initialized", true);
+
+                //Set some default shared pref
+                ed.putString("Username", mEmail);
+                ed.putString("Password", mPassword);
+
+                ed.commit();
+
+                ((InstaMaterialApplication) MainActivity.this.getApplication()).setInstagram(instagram);
+
+
+            } catch (Exception e) {
+
+                e.printStackTrace();
+            }
+
+            try {
+                // Simulate network access.
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                return false;
+            }
+
+
+            // TODO: register the new account here.
+            return true;
+        }
+
+        @Override
+        protected void onPostExecute(final Boolean success) {
+
+            if (success) {
+
+            } else {
+
+            }
+        }
+
+        @Override
+        protected void onCancelled() {
+
+        }
     }
 }
