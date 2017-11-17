@@ -67,15 +67,10 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
             Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
 
-            //Indicate that the default shared prefs have been set
-            ed.putBoolean("initialized", true);
-
-            //Set some default shared pref
-            ed.putString("Username", "wowsaBowsa");
-            ed.putString("Password", "wowsaBowsa");
-
-            ed.commit();
         } else {
+
+            Log.i("Username", sharedPrefs.getString("Username", ""));
+            Log.i("Username", sharedPrefs.getString("Password", ""));
 
             instagram = Instagram4Android.builder()
                     .username(sharedPrefs.getString("Username", ""))
@@ -85,24 +80,21 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
             instagram.setup();
 
             try {
-                InstagramLoginResult instagramLoginResult  = instagram.login();
+                InstagramLoginResult instagramLoginResult = instagram.login();
                 Log.i("Login status", "Login success!");
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
 
         }
 
-
-        return;
-
-        /*setupFeed();
+        setupFeed();
 
         if (savedInstanceState == null) {
             pendingIntroAnimation = true;
         } else {
             feedAdapter.updateItems(false);
-        }*/
+        }
     }
 
     private void setupFeed() {

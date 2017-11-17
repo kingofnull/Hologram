@@ -12,8 +12,12 @@ public class InstaMaterialApplication extends Application {
 
     private Instagram4Android instagram;
 
-    public Instagram4Android getInstagram(){
+    public Instagram4Android getInstagram() {
         return instagram;
+    }
+
+    public void setInstagram(Instagram4Android instagram) {
+        this.instagram = instagram;
     }
 
     @Override

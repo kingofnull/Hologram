@@ -34,6 +34,7 @@ import java.util.List;
 
 import dev.niekirk.com.instagram4android.Instagram4Android;
 import dev.niekirk.com.instagram4android.requests.payload.InstagramLoginResult;
+import io.github.froger.instamaterial.InstaMaterialApplication;
 import io.github.froger.instamaterial.R;
 
 import static android.Manifest.permission.READ_CONTACTS;
@@ -189,7 +190,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            mAuthTask = new UserLoginTask(email, password);
+            mAuthTask = new UserLoginTask(this, email, password);
             mAuthTask.execute((Void) null);
         }
 
@@ -197,7 +198,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
     private boolean isEmailValid(String email) {
         //TODO: Replace this with your own logic
-        return email.contains("@");
+        //return email.contains("@");
+        return true;
     }
 
     private boolean isPasswordValid(String password) {
@@ -303,10 +305,12 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         private final String mEmail;
         private final String mPassword;
+        private final LoginActivity loginActivity;
 
-        UserLoginTask(String email, String password) {
+        UserLoginTask(LoginActivity loginActivity, String email, String password) {
             mEmail = email;
             mPassword = password;
+            this.loginActivity = loginActivity;
         }
 
         @Override
@@ -332,6 +336,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
                 ed.commit();
 
+                ((InstaMaterialApplication) loginActivity.getApplication()).setInstagram(instagram);
 
             } catch (Exception e) {
 
