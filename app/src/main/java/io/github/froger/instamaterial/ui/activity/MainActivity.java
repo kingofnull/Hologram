@@ -17,8 +17,6 @@ import android.view.Menu;
 import android.view.View;
 import android.view.animation.OvershootInterpolator;
 
-import java.io.IOException;
-
 import butterknife.BindView;
 import butterknife.OnClick;
 import dev.niekirk.com.instagram4android.Instagram4Android;
@@ -233,7 +231,6 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
     public void showLikedSnackbar() {
         Snackbar.make(clContent, "Liked!", Snackbar.LENGTH_SHORT).show();
     }
-
 
     public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
 
