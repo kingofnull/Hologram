@@ -139,20 +139,28 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     public void updateItems(boolean animated) {
-        feedItems.clear();
-        feedItems.addAll(Arrays.asList(
-                new FeedItem(33, false),
-                new FeedItem(1, false),
-                new FeedItem(223, false),
-                new FeedItem(2, false),
-                new FeedItem(6, false),
-                new FeedItem(8, false),
-                new FeedItem(99, false)
-        ));
-        if (animated) {
-            notifyItemRangeInserted(0, feedItems.size());
-        } else {
-            notifyDataSetChanged();
+
+        try {
+            feedItems.clear();
+            feedItems.addAll(Arrays.asList(
+                    new FeedItem(33, false),
+                    new FeedItem(1, false),
+                    new FeedItem(223, false),
+                    new FeedItem(2, false),
+                    new FeedItem(6, false),
+                    new FeedItem(8, false),
+                    new FeedItem(99, false)
+            ));
+            if (animated) {
+                notifyItemRangeInserted(0, feedItems.size());
+            } else {
+                notifyDataSetChanged();
+            }
+
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
         }
     }
 

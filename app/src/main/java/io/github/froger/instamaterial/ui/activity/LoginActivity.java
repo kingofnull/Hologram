@@ -3,7 +3,6 @@ package io.github.froger.instamaterial.ui.activity;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
-import android.app.Application;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.CursorLoader;
 import android.content.Intent;
@@ -143,6 +142,17 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 populateAutoComplete();
             }
         }
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if ((keyCode == KeyEvent.KEYCODE_BACK)) {
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            intent.putExtra("EXIT", true);
+            startActivity(intent);
+        }
+        return super.onKeyDown(keyCode, event);
     }
 
 
@@ -326,7 +336,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             try {
 
                 InstagramLoginResult instagramLoginResult = instagram.login();
-                Log.i("Login status", "Login success!");
+                Log.i("Hologram", "Login success!");
 
                 // Indicate that the default shared prefs have been set
                 ed.putBoolean("initialized", true);

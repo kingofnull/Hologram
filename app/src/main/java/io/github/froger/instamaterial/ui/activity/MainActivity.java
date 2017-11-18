@@ -49,12 +49,21 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
 
     private boolean pendingIntroAnimation;
 
-    private Instagram4Android instagram;
+    public Instagram4Android instagram;
+    private Bundle savedInstanceState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        if (getIntent().getBooleanExtra("EXIT", false)) {
+            finish();
+            return;
+        }
+
+        setupFeed();
+        this.savedInstanceState = savedInstanceState;
 
         this.instagram = ((InstaMaterialApplication) this.getApplication()).getInstagram();
 
@@ -68,8 +77,8 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
 
         } else {
 
-            Log.i("Username", sharedPrefs.getString("Username", ""));
-            Log.i("Username", sharedPrefs.getString("Password", ""));
+            Log.i("Hologram", sharedPrefs.getString("Username", ""));
+            Log.i("Hologram", sharedPrefs.getString("Password", ""));
 
             String email = sharedPrefs.getString("Username", "");
             String password = sharedPrefs.getString("Password", "");
@@ -78,13 +87,6 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
 
         }
 
-        setupFeed();
-
-        if (savedInstanceState == null) {
-            pendingIntroAnimation = true;
-        } else {
-            feedAdapter.updateItems(false);
-        }
     }
 
     private void setupFeed() {
@@ -236,37 +238,34 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
 
         private final String mEmail;
         private final String mPassword;
+        private MainActivity main;
 
         UserLoginTask(String email, String password) {
             mEmail = email;
             mPassword = password;
+            main = MainActivity.this;
         }
 
         @Override
         protected Boolean doInBackground(Void... params) {
             // TODO: attempt authentication against a network service.
 
-            SharedPreferences sharedPrefs = getSharedPreferences("USER_INFO", MODE_PRIVATE);
-            SharedPreferences.Editor ed = sharedPrefs.edit();
-
             Instagram4Android instagram = Instagram4Android.builder().username(mEmail).password(mPassword).build();
             instagram.setup();
             try {
 
                 InstagramLoginResult instagramLoginResult = instagram.login();
-                Log.i("Login status", "Login success!");
+                Log.i("Hologram", "Login success!");
 
-                // Indicate that the default shared prefs have been set
-                ed.putBoolean("initialized", true);
+                ((InstaMaterialApplication) main.getApplication()).setInstagram(instagram);
 
-                //Set some default shared pref
-                ed.putString("Username", mEmail);
-                ed.putString("Password", mPassword);
+                feedAdapter.updateItems(false);
 
-                ed.commit();
-
-                ((InstaMaterialApplication) MainActivity.this.getApplication()).setInstagram(instagram);
-
+                if (main.savedInstanceState == null) {
+                    pendingIntroAnimation = true;
+                } else {
+                    feedAdapter.updateItems(false);
+                }
 
             } catch (Exception e) {
 
