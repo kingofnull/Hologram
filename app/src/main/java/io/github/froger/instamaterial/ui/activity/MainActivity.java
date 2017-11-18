@@ -26,6 +26,7 @@ import io.github.froger.instamaterial.R;
 import io.github.froger.instamaterial.Utils;
 import io.github.froger.instamaterial.ui.adapter.FeedAdapter;
 import io.github.froger.instamaterial.ui.adapter.FeedItemAnimator;
+import io.github.froger.instamaterial.ui.utils.EndlessRecyclerViewScrollListener;
 import io.github.froger.instamaterial.ui.view.FeedContextMenu;
 import io.github.froger.instamaterial.ui.view.FeedContextMenuManager;
 
@@ -62,7 +63,7 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
             return;
         }
 
-        setupFeed();
+
         this.savedInstanceState = savedInstanceState;
 
         this.instagram = ((InstaMaterialApplication) this.getApplication()).getInstagram();
@@ -75,16 +76,32 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
             Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
 
+            setupFeed();
+
+            if (savedInstanceState == null) {
+                pendingIntroAnimation = true;
+            } else {
+                feedAdapter.updateItems(false);
+            }
+
         } else {
 
-            Log.i("Hologram", sharedPrefs.getString("Username", ""));
+           /* Log.i("Hologram", sharedPrefs.getString("Username", ""));
             Log.i("Hologram", sharedPrefs.getString("Password", ""));
 
             String email = sharedPrefs.getString("Username", "");
             String password = sharedPrefs.getString("Password", "");
 
-            new UserLoginTask(email, password).execute((Void) null);
+            new UserLoginTask(email, password).execute((Void) null);*/
 
+        }
+
+        setupFeed();
+
+        if (savedInstanceState == null) {
+            pendingIntroAnimation = true;
+        } else {
+            feedAdapter.updateItems(false);
         }
 
     }
@@ -101,13 +118,23 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
         feedAdapter = new FeedAdapter(this);
         feedAdapter.setOnFeedItemClickListener(this);
         rvFeed.setAdapter(feedAdapter);
-        rvFeed.setOnScrollListener(new RecyclerView.OnScrollListener() {
+        rvFeed.addOnScrollListener(new EndlessRecyclerViewScrollListener() {
             @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                FeedContextMenuManager.getInstance().onScrolled(recyclerView, dx, dy);
+            public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
+                rvFeed.post(new Runnable() {
+                    public void run() {
+                        feedAdapter.notifyItemInserted(feedAdapter.feedItems.size() - 1);
+                    }
+                });
             }
+
+
         });
         rvFeed.setItemAnimator(new FeedItemAnimator());
+    }
+
+    public void loadNextDataFromApi(int offset) {
+
     }
 
     @Override
@@ -259,13 +286,20 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
 
                 ((InstaMaterialApplication) main.getApplication()).setInstagram(instagram);
 
-                feedAdapter.updateItems(false);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
 
-                if (main.savedInstanceState == null) {
-                    pendingIntroAnimation = true;
-                } else {
-                    feedAdapter.updateItems(false);
-                }
+                        setupFeed();
+
+                        if (savedInstanceState == null) {
+                            pendingIntroAnimation = true;
+                        } else {
+                            feedAdapter.updateItems(false);
+                        }
+                    }
+                });
+
 
             } catch (Exception e) {
 

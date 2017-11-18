@@ -31,7 +31,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public static final int VIEW_TYPE_DEFAULT = 1;
     public static final int VIEW_TYPE_LOADER = 2;
 
-    private final List<FeedItem> feedItems = new ArrayList<>();
+    public final List<FeedItem> feedItems = new ArrayList<>();
 
     private Context context;
     private OnFeedItemClickListener onFeedItemClickListener;
