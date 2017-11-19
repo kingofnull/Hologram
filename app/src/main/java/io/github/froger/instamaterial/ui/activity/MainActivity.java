@@ -71,7 +71,6 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
             return;
         }
 
-
         this.savedInstanceState = savedInstanceState;
 
         this.instagram = ((InstaMaterialApplication) this.getApplication()).getInstagram();
