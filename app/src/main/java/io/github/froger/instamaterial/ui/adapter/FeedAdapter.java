@@ -12,13 +12,13 @@ import android.widget.ImageView;
 import android.widget.TextSwitcher;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.github.froger.instamaterial.R;
 import io.github.froger.instamaterial.ui.activity.MainActivity;
+import io.github.froger.instamaterial.ui.utils.DownloadImageTask;
 import io.github.froger.instamaterial.ui.view.LoadingFeedItemView;
 
 /**
@@ -141,7 +141,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public void updateItems(boolean animated) {
 
         try {
-            feedItems.clear();
+            /*feedItems.clear();
             feedItems.addAll(Arrays.asList(
                     new FeedItem(33, false),
                     new FeedItem(1, false),
@@ -155,7 +155,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 notifyItemRangeInserted(0, feedItems.size());
             } else {
                 notifyDataSetChanged();
-            }
+            }*/
 
 
         } catch (Exception e) {
@@ -205,7 +205,11 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         public void bindView(FeedItem feedItem) {
             this.feedItem = feedItem;
             int adapterPosition = getAdapterPosition();
-            ivFeedCenter.setImageResource(adapterPosition % 2 == 0 ? R.drawable.img_feed_center_1 : R.drawable.img_feed_center_2);
+
+            // show The Image in a ImageView
+            new DownloadImageTask(ivFeedCenter).execute(feedItem.imgUrl);
+
+            //ivFeedCenter.setImageResource(adapterPosition % 2 == 0 ? R.drawable.img_feed_center_1 : R.drawable.img_feed_center_2);
             ivFeedBottom.setImageResource(adapterPosition % 2 == 0 ? R.drawable.img_feed_bottom_1 : R.drawable.img_feed_bottom_2);
             btnLike.setImageResource(feedItem.isLiked ? R.drawable.ic_heart_red : R.drawable.ic_heart_outline_grey);
             tsLikesCounter.setCurrentText(vImageRoot.getResources().getQuantityString(
@@ -236,10 +240,12 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public static class FeedItem {
         public int likesCount;
         public boolean isLiked;
+        public String imgUrl;
 
-        public FeedItem(int likesCount, boolean isLiked) {
+        public FeedItem(int likesCount, boolean isLiked, String imgUrl) {
             this.likesCount = likesCount;
             this.isLiked = isLiked;
+            this.imgUrl = imgUrl;
         }
     }
 

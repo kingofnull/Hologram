@@ -17,10 +17,18 @@ import android.view.Menu;
 import android.view.View;
 import android.view.animation.OvershootInterpolator;
 
+import java.util.List;
+
 import butterknife.BindView;
 import butterknife.OnClick;
 import dev.niekirk.com.instagram4android.Instagram4Android;
+import dev.niekirk.com.instagram4android.requests.InstagramTimelineFeedRequest;
+import dev.niekirk.com.instagram4android.requests.InstagramUserFeedRequest;
+import dev.niekirk.com.instagram4android.requests.payload.InstagramFeedItem;
+import dev.niekirk.com.instagram4android.requests.payload.InstagramFeedResult;
 import dev.niekirk.com.instagram4android.requests.payload.InstagramLoginResult;
+import dev.niekirk.com.instagram4android.requests.payload.InstagramTimelineFeedItem;
+import dev.niekirk.com.instagram4android.requests.payload.InstagramTimelineFeedResult;
 import io.github.froger.instamaterial.InstaMaterialApplication;
 import io.github.froger.instamaterial.R;
 import io.github.froger.instamaterial.Utils;
@@ -86,22 +94,10 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
 
         } else {
 
-           /* Log.i("Hologram", sharedPrefs.getString("Username", ""));
-            Log.i("Hologram", sharedPrefs.getString("Password", ""));
-
             String email = sharedPrefs.getString("Username", "");
             String password = sharedPrefs.getString("Password", "");
 
-            new UserLoginTask(email, password).execute((Void) null);*/
-
-        }
-
-        setupFeed();
-
-        if (savedInstanceState == null) {
-            pendingIntroAnimation = true;
-        } else {
-            feedAdapter.updateItems(false);
+            new Worker("Login").execute(email, password);
         }
 
     }
@@ -118,18 +114,27 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
         feedAdapter = new FeedAdapter(this);
         feedAdapter.setOnFeedItemClickListener(this);
         rvFeed.setAdapter(feedAdapter);
-        rvFeed.addOnScrollListener(new EndlessRecyclerViewScrollListener() {
+
+        new Worker("UserFeed").execute((String) null);
+
+        EndlessRecyclerViewScrollListener scrollListener;
+
+        scrollListener = new EndlessRecyclerViewScrollListener(linearLayoutManager) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-                rvFeed.post(new Runnable() {
+
+                new Worker("UserFeed").execute((String) null);
+                //feedAdapter.feedItems.add( new FeedAdapter.FeedItem(222, false));
+
+/*                rvFeed.post(new Runnable() {
                     public void run() {
                         feedAdapter.notifyItemInserted(feedAdapter.feedItems.size() - 1);
                     }
-                });
+                });*/
             }
+        };
 
-
-        });
+        rvFeed.addOnScrollListener(scrollListener);
         rvFeed.setItemAnimator(new FeedItemAnimator());
     }
 
@@ -261,30 +266,54 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
         Snackbar.make(clContent, "Liked!", Snackbar.LENGTH_SHORT).show();
     }
 
-    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
+    public class Worker extends AsyncTask<String, Void, Boolean> {
 
-        private final String mEmail;
-        private final String mPassword;
-        private MainActivity main;
+        private final String option;
 
-        UserLoginTask(String email, String password) {
-            mEmail = email;
-            mPassword = password;
-            main = MainActivity.this;
+        Worker(String option) {
+            this.option = option;
+        }
+
+        // return current main instance
+        public MainActivity getMain() {
+            return MainActivity.this;
         }
 
         @Override
-        protected Boolean doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
+        protected Boolean doInBackground(String... params) {
 
-            Instagram4Android instagram = Instagram4Android.builder().username(mEmail).password(mPassword).build();
+            switch (option) {
+                case "Login":
+                    doLogin(params[0], params[1]);
+                    break;
+                case "UserFeed":
+                    getUserFeed();
+                    break;
+            }
+
+            try {
+                // Simulate network access.
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                return false;
+            }
+
+
+            // TODO: register the new account here.
+            return true;
+        }
+
+        // for login
+        public void doLogin(String email, String password) {
+
+            instagram = Instagram4Android.builder().username(email).password(password).build();
             instagram.setup();
             try {
 
                 InstagramLoginResult instagramLoginResult = instagram.login();
                 Log.i("Hologram", "Login success!");
 
-                ((InstaMaterialApplication) main.getApplication()).setInstagram(instagram);
+                ((InstaMaterialApplication) MainActivity.this.getApplication()).setInstagram(instagram);
 
                 runOnUiThread(new Runnable() {
                     @Override
@@ -306,17 +335,55 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
                 e.printStackTrace();
             }
 
-            try {
-                // Simulate network access.
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                return false;
-            }
-
-
-            // TODO: register the new account here.
-            return true;
         }
+
+        // fetch user feed
+        public void getUserFeed() {
+            try {
+
+                Log.i("Hologram", "Read User Feeds");
+
+                InstagramFeedResult result = instagram.sendRequest(new InstagramUserFeedRequest(instagram.getUserId(), null, 0L));
+                List<InstagramFeedItem> items = result.getItems();
+
+                String maxId = null;
+                for (int i = 0; i < 4; i++) {
+                    if (i > 0) {
+                        System.out.println("MAX ID: " + maxId);
+                    }
+                    InstagramTimelineFeedResult feedResult = instagram.sendRequest(new InstagramTimelineFeedRequest(maxId, null));
+                    for (InstagramTimelineFeedItem item : feedResult.getFeed_items()) {
+                        if (item.getMedia_or_ad() == null || item.getMedia_or_ad().getImage_versions2() == null ||
+                                item.getMedia_or_ad().getImage_versions2().getCandidates() == null) {
+                            System.out.println("NO");
+                        } else {
+
+                            System.out.println(item.getMedia_or_ad().getImage_versions2().getCandidates().get(0).getUrl());
+                            String imgUrl = item.getMedia_or_ad().getImage_versions2().getCandidates().get(0).getUrl();
+                            int likeCount = item.getMedia_or_ad().getLike_count();
+                            boolean isLiked = item.getMedia_or_ad().isHas_liked();
+
+                            feedAdapter.feedItems.add(new FeedAdapter.FeedItem(likeCount, isLiked, imgUrl));
+                        }
+                    }
+                    maxId = feedResult.getNext_max_id();
+                    Thread.sleep(100);
+                }
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        feedAdapter.notifyItemInserted(feedAdapter.feedItems.size() - 1);
+                    }
+                });
+
+
+            } catch (Exception e) {
+                Log.e("Hologram", Log.getStackTraceString(e));
+            }
+        }
+
 
         @Override
         protected void onPostExecute(final Boolean success) {
