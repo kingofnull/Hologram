@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -308,8 +309,17 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
         // for login
         public void doLogin(String email, String password) {
 
-            instagram = Instagram4Android.builder().username(email).password(password).build();
-            instagram.setup();
+            Log.i("Hologram", "Try Login ...");
+            if (instagram == null || !instagram.isLoggedIn()) {
+
+                instagram = Instagram4Android.builder().username(email).password(password).build();
+                instagram.setup();
+            } else {
+                Log.i("Hologram", "Already Logged in!");
+                setupFeed();
+                return;
+            }
+
             try {
 
                 InstagramLoginResult instagramLoginResult = instagram.login();
@@ -353,32 +363,60 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
 //                    if (i > 0) {
 //                        System.out.println("MAX ID: " + maxId);
 //                    }
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        getWindow().getDecorView().setBackgroundColor(Color.RED);
+//stuff that updates ui
+
+                    }
+                });
                 InstagramTimelineFeedResult feedResult = instagram.sendRequest(new InstagramTimelineFeedRequest(mFeedsMaxId, null));
+                Log.i("Hologram", "User feeds loaded!");
                 for (InstagramTimelineFeedItem item : feedResult.getFeed_items()) {
                     if (item.getMedia_or_ad() == null || item.getMedia_or_ad().getImage_versions2() == null ||
                             item.getMedia_or_ad().getImage_versions2().getCandidates() == null) {
-                        Log.i("Add Feeds", "Skip");
+                        Log.i("Hologram", "Add Feeds Skip");
                     } else {
-                        Log.i("Add Feeds", item.getMedia_or_ad().getImage_versions2().getCandidates().get(0).getUrl());
+                        Log.i("Hologram", "Add Feeds" + item.getMedia_or_ad().getImage_versions2().getCandidates().get(0).getUrl());
 
                         String imgUrl = item.getMedia_or_ad().getImage_versions2().getCandidates().get(0).getUrl();
                         int likeCount = item.getMedia_or_ad().getLike_count();
                         boolean isLiked = item.getMedia_or_ad().isHas_liked();
 
-                        feedAdapter.feedItems.add(new FeedAdapter.FeedItem(likeCount, isLiked, imgUrl));
+//                            feedAdapter.feedItems.add(new FeedAdapter.FeedItem(likeCount, isLiked, imgUrl));
+                        feedAdapter.add(new FeedAdapter.FeedItem(likeCount, isLiked, imgUrl));
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+
+                                feedAdapter.notifyItemInserted(feedAdapter.feedItems.size() - 1);
+                            }
+                        });
                     }
                 }
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        getWindow().getDecorView().setBackgroundColor(Color.GREEN);
+//stuff that updates ui
+
+                    }
+                });
+
                 mFeedsMaxId = feedResult.getNext_max_id();
 //                    Thread.sleep(100);
 //                }
 
-                runOnUiThread(new Runnable() {
+               /* runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
 
                         feedAdapter.notifyItemInserted(feedAdapter.feedItems.size() - 1);
                     }
-                });
+                });*/
 
 
             } catch (Exception e) {

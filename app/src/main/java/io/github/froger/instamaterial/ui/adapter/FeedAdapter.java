@@ -37,6 +37,9 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private OnFeedItemClickListener onFeedItemClickListener;
 
     private boolean showLoadingView = false;
+    public boolean isLoading = false;
+
+
 
     public FeedAdapter(Context context) {
         this.context = context;
@@ -255,5 +258,13 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         void onMoreClick(View v, int position);
 
         void onProfileClick(View v);
+    }
+
+    public boolean add(FeedItem r) {
+        boolean s = feedItems.add(r);
+        if (s) {
+//            notifyItemInserted(feedItems.size() - 1);
+        }
+        return s;
     }
 }
