@@ -40,6 +40,7 @@ import io.github.froger.instamaterial.ui.view.FeedContextMenuManager;
 
 
 public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFeedItemClickListener,
+
         FeedContextMenu.OnFeedContextMenuItemClickListener {
     public static final String ACTION_SHOW_LOADING_ITEM = "action_show_loading_item";
 
@@ -60,6 +61,8 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
 
     public Instagram4Android instagram;
     private Bundle savedInstanceState;
+
+    private String mFeedsMaxId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -290,12 +293,12 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
                     break;
             }
 
-            try {
+           /* try {
                 // Simulate network access.
                 Thread.sleep(2000);
             } catch (InterruptedException e) {
                 return false;
-            }
+            }*/
 
 
             // TODO: register the new account here.
@@ -345,29 +348,29 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
                 InstagramFeedResult result = instagram.sendRequest(new InstagramUserFeedRequest(instagram.getUserId(), null, 0L));
                 List<InstagramFeedItem> items = result.getItems();
 
-                String maxId = null;
-                for (int i = 0; i < 4; i++) {
-                    if (i > 0) {
-                        System.out.println("MAX ID: " + maxId);
-                    }
-                    InstagramTimelineFeedResult feedResult = instagram.sendRequest(new InstagramTimelineFeedRequest(maxId, null));
-                    for (InstagramTimelineFeedItem item : feedResult.getFeed_items()) {
-                        if (item.getMedia_or_ad() == null || item.getMedia_or_ad().getImage_versions2() == null ||
-                                item.getMedia_or_ad().getImage_versions2().getCandidates() == null) {
-                            System.out.println("NO");
-                        } else {
+//                String maxId = null;
+//                for (int i = 0; i < 4; i++) {
+//                    if (i > 0) {
+//                        System.out.println("MAX ID: " + maxId);
+//                    }
+                InstagramTimelineFeedResult feedResult = instagram.sendRequest(new InstagramTimelineFeedRequest(mFeedsMaxId, null));
+                for (InstagramTimelineFeedItem item : feedResult.getFeed_items()) {
+                    if (item.getMedia_or_ad() == null || item.getMedia_or_ad().getImage_versions2() == null ||
+                            item.getMedia_or_ad().getImage_versions2().getCandidates() == null) {
+                        Log.i("Add Feeds", "Skip");
+                    } else {
+                        Log.i("Add Feeds", item.getMedia_or_ad().getImage_versions2().getCandidates().get(0).getUrl());
 
-                            System.out.println(item.getMedia_or_ad().getImage_versions2().getCandidates().get(0).getUrl());
-                            String imgUrl = item.getMedia_or_ad().getImage_versions2().getCandidates().get(0).getUrl();
-                            int likeCount = item.getMedia_or_ad().getLike_count();
-                            boolean isLiked = item.getMedia_or_ad().isHas_liked();
+                        String imgUrl = item.getMedia_or_ad().getImage_versions2().getCandidates().get(0).getUrl();
+                        int likeCount = item.getMedia_or_ad().getLike_count();
+                        boolean isLiked = item.getMedia_or_ad().isHas_liked();
 
-                            feedAdapter.feedItems.add(new FeedAdapter.FeedItem(likeCount, isLiked, imgUrl));
-                        }
+                        feedAdapter.feedItems.add(new FeedAdapter.FeedItem(likeCount, isLiked, imgUrl));
                     }
-                    maxId = feedResult.getNext_max_id();
-                    Thread.sleep(100);
                 }
+                mFeedsMaxId = feedResult.getNext_max_id();
+//                    Thread.sleep(100);
+//                }
 
                 runOnUiThread(new Runnable() {
                     @Override
