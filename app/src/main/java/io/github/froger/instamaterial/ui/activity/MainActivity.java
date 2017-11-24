@@ -78,7 +78,6 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
 
         Log.i("Hologram", "before launch!");
 
-
         if (instagram != null && instagram.isLoggedIn()) {
 
             Log.i("Hologram", "setup feed");
@@ -106,7 +105,7 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
 
             this.instagram = ((InstaMaterialApplication) this.getApplication()).getInstagram();
 
-            Log.i("Hologram", "set instagram" + instagram.toString());
+            Log.i("Hologram", "set instagram " + instagram.toString());
 
             setupFeed();
 
