@@ -3,8 +3,6 @@ package io.github.froger.instamaterial.ui.activity;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -27,7 +25,6 @@ import dev.niekirk.com.instagram4android.requests.InstagramTimelineFeedRequest;
 import dev.niekirk.com.instagram4android.requests.InstagramUserFeedRequest;
 import dev.niekirk.com.instagram4android.requests.payload.InstagramFeedItem;
 import dev.niekirk.com.instagram4android.requests.payload.InstagramFeedResult;
-import dev.niekirk.com.instagram4android.requests.payload.InstagramLoginResult;
 import dev.niekirk.com.instagram4android.requests.payload.InstagramTimelineFeedItem;
 import dev.niekirk.com.instagram4android.requests.payload.InstagramTimelineFeedResult;
 import io.github.froger.instamaterial.InstaMaterialApplication;
@@ -41,12 +38,12 @@ import io.github.froger.instamaterial.ui.view.FeedContextMenuManager;
 
 
 public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFeedItemClickListener,
-
         FeedContextMenu.OnFeedContextMenuItemClickListener {
     public static final String ACTION_SHOW_LOADING_ITEM = "action_show_loading_item";
 
     private static final int ANIM_DURATION_TOOLBAR = 300;
     private static final int ANIM_DURATION_FAB = 400;
+    private static final int AFTER_LOGIN_SUCCESS = 500;
 
 
     @BindView(R.id.rvFeed)
@@ -79,13 +76,37 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
 
         this.instagram = ((InstaMaterialApplication) this.getApplication()).getInstagram();
 
-        SharedPreferences sharedPrefs = getSharedPreferences("USER_INFO", MODE_PRIVATE);
-        SharedPreferences.Editor ed = sharedPrefs.edit();
+        Log.i("Hologram", "before launch!");
 
-        if (!sharedPrefs.contains("initialized")) {
 
+        if (instagram != null && instagram.isLoggedIn()) {
+
+            Log.i("Hologram", "setup feed");
+            setupFeed();
+
+            if (savedInstanceState == null) {
+                pendingIntroAnimation = true;
+            } else {
+                feedAdapter.updateItems(false);
+            }
+        } else {
+
+            Log.i("Hologram", "launch");
             Intent intent = new Intent(this, LoginActivity.class);
-            startActivity(intent);
+            startActivityForResult(intent, AFTER_LOGIN_SUCCESS);
+        }
+
+        Log.i("Hologram", "after launch!");
+
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == AFTER_LOGIN_SUCCESS) {
+
+            this.instagram = ((InstaMaterialApplication) this.getApplication()).getInstagram();
+
+            Log.i("Hologram", "set instagram" + instagram.toString());
 
             setupFeed();
 
@@ -95,12 +116,6 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
                 feedAdapter.updateItems(false);
             }
 
-        } else {
-
-            String email = sharedPrefs.getString("Username", "");
-            String password = sharedPrefs.getString("Password", "");
-
-            new Worker("Login").execute(email, password);
         }
 
     }
@@ -286,68 +301,15 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
         protected Boolean doInBackground(String... params) {
 
             switch (option) {
-                case "Login":
-                    doLogin(params[0], params[1]);
-                    break;
                 case "UserFeed":
                     getUserFeed();
                     break;
             }
 
-           /* try {
-                // Simulate network access.
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                return false;
-            }*/
-
-
             // TODO: register the new account here.
             return true;
         }
 
-        // for login
-        public void doLogin(String email, String password) {
-
-            Log.i("Hologram", "Try Login ...");
-            if (instagram == null || !instagram.isLoggedIn()) {
-
-                instagram = Instagram4Android.builder().username(email).password(password).build();
-                instagram.setup();
-            } else {
-                Log.i("Hologram", "Already Logged in!");
-                setupFeed();
-                return;
-            }
-
-            try {
-
-                InstagramLoginResult instagramLoginResult = instagram.login();
-                Log.i("Hologram", "Login success!");
-
-                ((InstaMaterialApplication) MainActivity.this.getApplication()).setInstagram(instagram);
-
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-
-                        setupFeed();
-
-                        if (savedInstanceState == null) {
-                            pendingIntroAnimation = true;
-                        } else {
-                            feedAdapter.updateItems(false);
-                        }
-                    }
-                });
-
-
-            } catch (Exception e) {
-
-                e.printStackTrace();
-            }
-
-        }
 
         // fetch user feed
         public void getUserFeed() {
@@ -358,22 +320,8 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
                 InstagramFeedResult result = instagram.sendRequest(new InstagramUserFeedRequest(instagram.getUserId(), null, 0L));
                 List<InstagramFeedItem> items = result.getItems();
 
-//                String maxId = null;
-//                for (int i = 0; i < 4; i++) {
-//                    if (i > 0) {
-//                        System.out.println("MAX ID: " + maxId);
-//                    }
-
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        getWindow().getDecorView().setBackgroundColor(Color.RED);
-//stuff that updates ui
-
-                    }
-                });
                 InstagramTimelineFeedResult feedResult = instagram.sendRequest(new InstagramTimelineFeedRequest(mFeedsMaxId, null));
-                Log.i("Hologram", "User feeds loaded!");
+                Log.i("Hologram", "User feeds loaded!" + feedResult.getFeed_items().size());
                 for (InstagramTimelineFeedItem item : feedResult.getFeed_items()) {
                     if (item.getMedia_or_ad() == null || item.getMedia_or_ad().getImage_versions2() == null ||
                             item.getMedia_or_ad().getImage_versions2().getCandidates() == null) {
@@ -390,33 +338,13 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-
                                 feedAdapter.notifyItemInserted(feedAdapter.feedItems.size() - 1);
                             }
                         });
                     }
                 }
 
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        getWindow().getDecorView().setBackgroundColor(Color.GREEN);
-//stuff that updates ui
-
-                    }
-                });
-
                 mFeedsMaxId = feedResult.getNext_max_id();
-//                    Thread.sleep(100);
-//                }
-
-               /* runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-
-                        feedAdapter.notifyItemInserted(feedAdapter.feedItems.size() - 1);
-                    }
-                });*/
 
 
             } catch (Exception e) {

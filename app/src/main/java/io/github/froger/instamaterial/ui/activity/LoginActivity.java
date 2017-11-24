@@ -99,6 +99,22 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+
+        SharedPreferences sharedPrefs = getSharedPreferences("USER_INFO", MODE_PRIVATE);
+        SharedPreferences.Editor ed = sharedPrefs.edit();
+
+        if (sharedPrefs.contains("initialized")) {
+
+            String email = sharedPrefs.getString("Username", "");
+            String password = sharedPrefs.getString("Password", "");
+
+            mEmailView.setText(email);
+            mPasswordView.setText(password);
+
+            attemptLogin();
+
+        }
+
     }
 
     private void populateAutoComplete() {
@@ -393,4 +409,3 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         }
     }
 }
-
