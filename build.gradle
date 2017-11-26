@@ -4,12 +4,12 @@ buildscript {
         mavenCentral()
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
         jcenter()
+        google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.0.0'
+        classpath 'com.android.tools.build:gradle:3.0.1'
         classpath 'com.jakewharton.hugo:hugo-plugin:1.2.1'
         classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
-
     }
 }
 allprojects {
@@ -19,5 +19,6 @@ allprojects {
         maven { url "https://s3.amazonaws.com/repo.commonsware.com" }
         jcenter()
 
+        google()
     }
 }

@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.animation.OvershootInterpolator;
+import android.widget.ProgressBar;
 
 import java.util.List;
 
@@ -48,6 +49,11 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
 
     @BindView(R.id.rvFeed)
     RecyclerView rvFeed;
+
+    @BindView(R.id.feedProgressBar)
+    ProgressBar progressBar;
+
+
     @BindView(R.id.btnCreate)
     FloatingActionButton fabCreate;
     @BindView(R.id.content)
@@ -61,6 +67,7 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
     private Bundle savedInstanceState;
 
     private String mFeedsMaxId;
+    LinearLayoutManager linearLayoutManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -228,6 +235,7 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
 
     @Override
     public void onCommentsClick(View v, int position) {
+
         final Intent intent = new Intent(this, CommentsActivity.class);
         int[] startingLocation = new int[2];
         v.getLocationOnScreen(startingLocation);
@@ -319,8 +327,21 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
                 InstagramFeedResult result = instagram.sendRequest(new InstagramUserFeedRequest(instagram.getUserId(), null, 0L));
                 List<InstagramFeedItem> items = result.getItems();
 
+//                String maxId = null;
+//                for (int i = 0; i < 4; i++) {
+//                    if (i > 0) {
+//                        System.out.println("MAX ID: " + maxId);
+//                    }
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        progressBar.setVisibility(View.VISIBLE);
+                    }
+                });
+
                 InstagramTimelineFeedResult feedResult = instagram.sendRequest(new InstagramTimelineFeedRequest(mFeedsMaxId, null));
-                Log.i("Hologram", "User feeds loaded!" + feedResult.getFeed_items().size());
+                Log.i("Hologram", "User feeds loaded!");
                 for (InstagramTimelineFeedItem item : feedResult.getFeed_items()) {
                     if (item.getMedia_or_ad() == null || item.getMedia_or_ad().getImage_versions2() == null ||
                             item.getMedia_or_ad().getImage_versions2().getCandidates() == null) {
@@ -340,8 +361,20 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
                                 feedAdapter.notifyItemInserted(feedAdapter.feedItems.size() - 1);
                             }
                         });
+
                     }
                 }
+
+
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        progressBar.setVisibility(View.GONE);
+                    }
+                });
+
+
 
                 mFeedsMaxId = feedResult.getNext_max_id();
 
