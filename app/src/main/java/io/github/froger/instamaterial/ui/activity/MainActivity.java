@@ -16,7 +16,6 @@ import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.OvershootInterpolator;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
 import java.util.List;
@@ -47,7 +46,7 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
     private static final int ANIM_DURATION_TOOLBAR = 300;
     private static final int ANIM_DURATION_FAB = 400;
     private static final int AFTER_LOGIN_SUCCESS = 500;
-
+    EndlessRecyclerViewScrollListener scrollListener;
 
     @BindView(R.id.rvFeed)
     RecyclerView rvFeed;
@@ -70,6 +69,8 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
 
     private String mFeedsMaxId;
     LinearLayoutManager linearLayoutManager;
+
+    boolean isLoading=false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,7 +106,7 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
         }
 
         Log.i("Hologram", "after launch!");
-
+        progressBar.getLayoutParams().height=ViewGroup.LayoutParams.MATCH_PARENT;
     }
 
     @Override
@@ -130,44 +131,41 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
 
     private void setupFeed() {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this) {
-            @Override
-            protected int getExtraLayoutSpace(RecyclerView.State state) {
-                return 300;
-            }
+//            @Override
+//            protected int getExtraLayoutSpace(RecyclerView.State state) {
+//                return 300;
+//            }
         };
         rvFeed.setLayoutManager(linearLayoutManager);
+
+
 
         feedAdapter = new FeedAdapter(this);
         feedAdapter.setOnFeedItemClickListener(this);
         rvFeed.setAdapter(feedAdapter);
 
-        new Worker("UserFeed"){
+        new Worker("UserFeed") {
             @Override
             protected void onPostExecute(Boolean success) {
                 super.onPostExecute(success);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        progressBar.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+//                        progressBar.getLayoutParams().height=ViewGroup.LayoutParams.WRAP_CONTENT;
+                        rvFeed.setVisibility(View.VISIBLE);
                     }
                 });
             }
         }.execute((String) null);
 
-        EndlessRecyclerViewScrollListener scrollListener;
+
 
         scrollListener = new EndlessRecyclerViewScrollListener(linearLayoutManager) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-
-                new Worker("UserFeed").execute((String) null);
-                //feedAdapter.feedItems.add( new FeedAdapter.FeedItem(222, false));
-
-/*                rvFeed.post(new Runnable() {
-                    public void run() {
-                        feedAdapter.notifyItemInserted(feedAdapter.feedItems.size() - 1);
-                    }
-                });*/
+                if(!isLoading){
+                    new Worker("UserFeed").execute((String) null);
+                }
             }
         };
 
@@ -342,6 +340,13 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
                 InstagramFeedResult result = instagram.sendRequest(new InstagramUserFeedRequest(instagram.getUserId(), null, 0L));
                 List<InstagramFeedItem> items = result.getItems();
 
+//                String maxId = null;
+//                for (int i = 0; i < 4; i++) {
+//                    if (i > 0) {
+//                        System.out.println("MAX ID: " + maxId);
+//                    }
+
+                isLoading=true;
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -350,7 +355,7 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
                 });
 
                 InstagramTimelineFeedResult feedResult = instagram.sendRequest(new InstagramTimelineFeedRequest(mFeedsMaxId, null));
-                Log.i("Hologram", "User feeds loaded!");
+                Log.i("Hologram", "User feeds loaded! size:" + feedResult.getFeed_items().size());
                 for (InstagramTimelineFeedItem item : feedResult.getFeed_items()) {
                     if (item.getMedia_or_ad() == null || item.getMedia_or_ad().getImage_versions2() == null ||
                             item.getMedia_or_ad().getImage_versions2().getCandidates() == null) {
@@ -358,6 +363,13 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
                     } else {
                         Log.i("Hologram", "Add Feeds" + item.getMedia_or_ad().getImage_versions2().getCandidates().get(0).getUrl());
 
+                        String imgUrl = item.getMedia_or_ad().getImage_versions2().getCandidates().get(0).getUrl();
+                        int likeCount = item.getMedia_or_ad().getLike_count();
+                        boolean isLiked = item.getMedia_or_ad().isHas_liked();
+
+//                            feedAdapter.feedItems.add(new FeedAdapter.FeedItem(likeCount, isLiked, imgUrl));
+                        feedAdapter.add(new FeedAdapter.FeedItem(likeCount, isLiked, imgUrl));
+//                        scrollListener.visibleThreshold=feedResult.getFeed_items().size();
                         feedAdapter.add(new FeedAdapter.FeedItem(item.getMedia_or_ad()));
                         runOnUiThread(new Runnable() {
                             @Override
@@ -366,8 +378,14 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
                             }
                         });
 
+
+                        Thread.sleep(100);
+
+
                     }
                 }
+
+
 
                 runOnUiThread(new Runnable() {
                     @Override
@@ -376,6 +394,7 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
                     }
                 });
 
+                isLoading=false;
                 mFeedsMaxId = feedResult.getNext_max_id();
 
 

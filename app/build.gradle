@@ -3,17 +3,45 @@ apply plugin: 'com.jakewharton.hugo'
 
 android {
     compileSdkVersion 27
-    buildToolsVersion '27.0.0'
+    buildToolsVersion '27.0.1'
     defaultConfig {
         applicationId "io.github.froger.instamaterial"
-        minSdkVersion 19
+        minSdkVersion 22
         targetSdkVersion 27
         versionCode 2
         versionName "1.0.1"
     }
 
+
+
+    flavorDimensions "stage", "mode"
+
     productFlavors {
+        dev {
+            dimension "stage"
+            minSdkVersion 21
+            versionNameSuffix "-dev"
+            applicationIdSuffix '.dev'
+            resConfigs "en", "xxhdpi"
+            ext.enableCrashlytics = false
+            ext.alwaysUpdateBuildId = false
+        }
+
+        prod {
+            dimension "stage"
+        }
+
+        demo {
+            dimension "mode"
+
+        }
+
+        full {
+            dimension "mode"
+        }
     }
+
+
 }
 
 dependencies {
@@ -34,4 +62,5 @@ dependencies {
     compile 'com.github.charlieAndroidDev:Instagram4Android:v0.1.32'
     compile  'com.github.pwittchen:infinitescroll:0.0.1'
 }
+
 
