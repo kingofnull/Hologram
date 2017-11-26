@@ -329,12 +329,6 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
                 InstagramFeedResult result = instagram.sendRequest(new InstagramUserFeedRequest(instagram.getUserId(), null, 0L));
                 List<InstagramFeedItem> items = result.getItems();
 
-//                String maxId = null;
-//                for (int i = 0; i < 4; i++) {
-//                    if (i > 0) {
-//                        System.out.println("MAX ID: " + maxId);
-//                    }
-
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -351,14 +345,7 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
                     } else {
                         Log.i("Hologram", "Add Feeds" + item.getMedia_or_ad().getImage_versions2().getCandidates().get(0).getUrl());
 
-                        String itemId = item.getMedia_or_ad().getId();
-
-                        String imgUrl = item.getMedia_or_ad().getImage_versions2().getCandidates().get(0).getUrl();
-                        int likeCount = item.getMedia_or_ad().getLike_count();
-                        boolean isLiked = item.getMedia_or_ad().isHas_liked();
-
-//                            feedAdapter.feedItems.add(new FeedAdapter.FeedItem(likeCount, isLiked, imgUrl));
-                        feedAdapter.add(new FeedAdapter.FeedItem(likeCount, isLiked, imgUrl, itemId));
+                        feedAdapter.add(new FeedAdapter.FeedItem(item.getMedia_or_ad()));
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -369,16 +356,12 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
                     }
                 }
 
-
-
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         progressBar.setVisibility(View.GONE);
                     }
                 });
-
-
 
                 mFeedsMaxId = feedResult.getNext_max_id();
 
@@ -387,7 +370,6 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
                 Log.e("Hologram", Log.getStackTraceString(e));
             }
         }
-
 
         @Override
         protected void onPostExecute(final Boolean success) {

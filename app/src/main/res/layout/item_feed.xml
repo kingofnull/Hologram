@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?><!-- item_feed.xml -->
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/card_view"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -13,11 +14,29 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <ImageView
-            android:id="@+id/ivUserProfile"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_feed_top" />
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="5dp">
+
+            <ImageView
+                android:id="@+id/ivUserProfile"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:adjustViewBounds="true" />
+
+            <TextView
+                android:id="@+id/txtUserName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingLeft="5dp"
+                android:text="UserName"
+                android:textColor="?attr/actionModeSplitBackground"
+                android:textSize="14sp" />
+        </LinearLayout>
 
         <io.github.froger.instamaterial.ui.view.SquaredFrameLayout
             android:id="@+id/vImageRoot"
@@ -47,10 +66,13 @@
 
         </io.github.froger.instamaterial.ui.view.SquaredFrameLayout>
 
-        <ImageView
+        <TextView
             android:id="@+id/ivFeedBottom"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:textSize="14sp"
+            tools:text="این متن تستی است" />
 
         <LinearLayout
             android:layout_width="match_parent"

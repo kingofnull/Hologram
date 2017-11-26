@@ -10,15 +10,19 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextSwitcher;
+import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import dev.niekirk.com.instagram4android.requests.payload.InstagramFeedItem;
 import io.github.froger.instamaterial.R;
 import io.github.froger.instamaterial.ui.activity.MainActivity;
-import io.github.froger.instamaterial.ui.utils.DownloadImageTask;
+import io.github.froger.instamaterial.ui.utils.CircleTransformation;
 import io.github.froger.instamaterial.ui.view.LoadingFeedItemView;
 
 /**
@@ -33,7 +37,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     public final List<FeedItem> feedItems = new ArrayList<>();
 
-    private Context context;
+    private static Context context;
     private OnFeedItemClickListener onFeedItemClickListener;
 
     private boolean showLoadingView = false;
@@ -42,7 +46,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
 
     public FeedAdapter(Context context) {
-        this.context = context;
+        FeedAdapter.context = context;
     }
 
     @Override
@@ -180,7 +184,9 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         @BindView(R.id.ivFeedCenter)
         ImageView ivFeedCenter;
         @BindView(R.id.ivFeedBottom)
-        ImageView ivFeedBottom;
+        TextView ivFeedBottom;
+        @BindView(R.id.txtUserName)
+        TextView txtUserName;
         @BindView(R.id.btnComments)
         ImageButton btnComments;
         @BindView(R.id.btnLike)
@@ -210,10 +216,21 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             int adapterPosition = getAdapterPosition();
 
             // show The Image in a ImageView
-            new DownloadImageTask(ivFeedCenter).execute(feedItem.imgUrl);
+            //new DownloadImageTask(ivFeedCenter).execute(feedItem.imgUrl);
+
+            Picasso.with(context)
+                    .load(feedItem.imgUrl)
+                    .into(ivFeedCenter);
+
+            Picasso.with(context)
+                    .load(feedItem.picProgile)
+                    .transform(new CircleTransformation())
+                    .into(ivUserProfile);
+
 
             //ivFeedCenter.setImageResource(adapterPosition % 2 == 0 ? R.drawable.img_feed_center_1 : R.drawable.img_feed_center_2);
-            ivFeedBottom.setImageResource(adapterPosition % 2 == 0 ? R.drawable.img_feed_bottom_1 : R.drawable.img_feed_bottom_2);
+            ivFeedBottom.setText(feedItem.caption);
+            txtUserName.setText(feedItem.userName);
             btnLike.setImageResource(feedItem.isLiked ? R.drawable.ic_heart_red : R.drawable.ic_heart_outline_grey);
             tsLikesCounter.setCurrentText(vImageRoot.getResources().getQuantityString(
                     R.plurals.likes_count, feedItem.likesCount, feedItem.likesCount
@@ -245,12 +262,18 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         public boolean isLiked;
         public String imgUrl;
         public String itemId;
+        public String caption;
+        public String userName;
+        public String picProgile;
 
-        public FeedItem(int likesCount, boolean isLiked, String imgUrl, String itemId) {
-            this.likesCount = likesCount;
-            this.isLiked = isLiked;
-            this.imgUrl = imgUrl;
-            this.itemId = itemId;
+        public FeedItem(InstagramFeedItem item) {
+            this.likesCount = item.getLike_count();
+            this.isLiked = item.isHas_liked();
+            this.imgUrl = item.getImage_versions2().getCandidates().get(0).getUrl();
+            this.caption = (String) item.getCaption().get("text");
+            this.itemId = item.getId();
+            this.userName = item.getUser().getUsername();
+            this.picProgile = item.getUser().getProfile_pic_url();
         }
     }
 
