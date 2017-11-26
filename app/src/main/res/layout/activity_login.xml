@@ -14,9 +14,9 @@
     <ProgressBar
         android:id="@+id/login_progress"
         style="?android:attr/progressBarStyleLarge"
-        android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_marginBottom="8dp"
+        android:layout_width="70dp"
         android:visibility="gone" />
 
     <ScrollView
