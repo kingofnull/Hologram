@@ -228,10 +228,13 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
 
     @Override
     public void onCommentsClick(View v, int position) {
+
+        FeedAdapter.FeedItem itm = feedAdapter.feedItems.get(position);
+
         final Intent intent = new Intent(this, CommentsActivity.class);
         int[] startingLocation = new int[2];
         v.getLocationOnScreen(startingLocation);
-        intent.putExtra(CommentsActivity.ARG_DRAWING_START_LOCATION, startingLocation[1]);
+        intent.putExtra(CommentsActivity.ARG_DRAWING_START_LOCATION, itm.itemId);
         startActivity(intent);
         overridePendingTransition(0, 0);
     }
@@ -328,12 +331,14 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
                     } else {
                         Log.i("Hologram", "Add Feeds" + item.getMedia_or_ad().getImage_versions2().getCandidates().get(0).getUrl());
 
+                        String itemId = item.getMedia_or_ad().getId();
+
                         String imgUrl = item.getMedia_or_ad().getImage_versions2().getCandidates().get(0).getUrl();
                         int likeCount = item.getMedia_or_ad().getLike_count();
                         boolean isLiked = item.getMedia_or_ad().isHas_liked();
 
 //                            feedAdapter.feedItems.add(new FeedAdapter.FeedItem(likeCount, isLiked, imgUrl));
-                        feedAdapter.add(new FeedAdapter.FeedItem(likeCount, isLiked, imgUrl));
+                        feedAdapter.add(new FeedAdapter.FeedItem(likeCount, isLiked, imgUrl, itemId));
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {

@@ -244,11 +244,13 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         public int likesCount;
         public boolean isLiked;
         public String imgUrl;
+        public String itemId;
 
-        public FeedItem(int likesCount, boolean isLiked, String imgUrl) {
+        public FeedItem(int likesCount, boolean isLiked, String imgUrl, String itemId) {
             this.likesCount = likesCount;
             this.isLiked = isLiked;
             this.imgUrl = imgUrl;
+            this.itemId = itemId;
         }
     }
 
