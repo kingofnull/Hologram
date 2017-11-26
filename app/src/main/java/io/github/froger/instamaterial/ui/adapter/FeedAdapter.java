@@ -265,7 +265,6 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public boolean add(FeedItem r) {
         boolean s = feedItems.add(r);
         if (s) {
-//            notifyItemInserted(feedItems.size() - 1);
         }
         return s;
     }
