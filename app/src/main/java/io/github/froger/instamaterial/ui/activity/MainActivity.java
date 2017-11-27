@@ -148,7 +148,7 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
         feedAdapter = new FeedAdapter(this);
         feedAdapter.setOnFeedItemClickListener(this);
         rvFeed.setAdapter(feedAdapter);
-        isRefresh=true;
+
         new Worker("UserFeed") {
             @Override
             protected void onPostExecute(Boolean success) {
@@ -158,7 +158,7 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
                     public void run() {
 //                        progressBar.getLayoutParams().height=ViewGroup.LayoutParams.WRAP_CONTENT;
                         rvFeed.setVisibility(View.VISIBLE);
-                        isRefresh=false;
+
                     }
                 });
             }
@@ -183,6 +183,7 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
                 scrollListener.resetState();
                 feedAdapter.feedItems.clear();
                 feedAdapter.notifyDataSetChanged();
+                isRefresh=true;
                 new Worker("UserFeed") {
                     @Override
                     protected void onPostExecute(Boolean success) {
@@ -191,6 +192,7 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
                             @Override
                             public void run() {
                                 feedsSwipeRefreshLayout.setRefreshing(false);
+                                isRefresh=false;
                             }
                         });
                     }

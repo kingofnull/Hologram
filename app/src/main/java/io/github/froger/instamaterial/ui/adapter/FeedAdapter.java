@@ -12,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.TextSwitcher;
 import android.widget.TextView;
 
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -220,10 +221,12 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
             Picasso.with(context)
                     .load(feedItem.imgUrl)
+                    .networkPolicy(NetworkPolicy.OFFLINE)
                     .into(ivFeedCenter);
 
             Picasso.with(context)
                     .load(feedItem.picProgile)
+                    .networkPolicy(NetworkPolicy.OFFLINE)
                     .transform(new CircleTransformation())
                     .into(ivUserProfile);
 
