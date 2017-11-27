@@ -54,10 +54,10 @@ public class LoginActivity extends AppCompatActivity  {
         setContentView(R.layout.activity_login);
 
         // Set up the login form.
-        mUsernameView = (EditText) findViewById(R.id.username);
+        mUsernameView = findViewById(R.id.username);
 
 
-        mPasswordView = (EditText) findViewById(R.id.password);
+        mPasswordView = findViewById(R.id.password);
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
@@ -69,7 +69,7 @@ public class LoginActivity extends AppCompatActivity  {
             }
         });
 
-        Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
+        Button mEmailSignInButton = findViewById(R.id.email_sign_in_button);
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             public void onClick(View view) {
                 attemptLogin();
@@ -83,8 +83,6 @@ public class LoginActivity extends AppCompatActivity  {
         SharedPreferences.Editor ed = sharedPrefs.edit();
 
         if (sharedPrefs.contains("initialized")) {
-
-
 
             mUsernameView.setText(sharedPrefs.getString("Username", ""));
             mPasswordView.setText(sharedPrefs.getString("Password", ""));
