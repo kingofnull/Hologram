@@ -247,12 +247,10 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
     @Override
     public void onCommentsClick(View v, int position) {
 
-        FeedAdapter.FeedItem itm = feedAdapter.feedItems.get(position);
-
         final Intent intent = new Intent(this, CommentsActivity.class);
         int[] startingLocation = new int[2];
         v.getLocationOnScreen(startingLocation);
-        intent.putExtra(CommentsActivity.ARG_DRAWING_START_LOCATION, itm.itemId);
+        intent.putExtra(CommentsActivity.ARG_DRAWING_START_LOCATION, startingLocation[1]);
         startActivity(intent);
         overridePendingTransition(0, 0);
     }
@@ -355,7 +353,7 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
                 });
 
                 InstagramTimelineFeedResult feedResult = instagram.sendRequest(new InstagramTimelineFeedRequest(mFeedsMaxId, null));
-                Log.i("Hologram", "User feeds loaded! size:" + feedResult.getFeed_items().size());
+                Log.i("Hologram", "User feeds loaded!");
                 for (InstagramTimelineFeedItem item : feedResult.getFeed_items()) {
                     if (item.getMedia_or_ad() == null || item.getMedia_or_ad().getImage_versions2() == null ||
                             item.getMedia_or_ad().getImage_versions2().getCandidates() == null) {
@@ -368,7 +366,7 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
                         boolean isLiked = item.getMedia_or_ad().isHas_liked();
 
 //                            feedAdapter.feedItems.add(new FeedAdapter.FeedItem(likeCount, isLiked, imgUrl));
-                        feedAdapter.add(new FeedAdapter.FeedItem(likeCount, isLiked, imgUrl));
+//                        feedAdapter.add(new FeedAdapter.FeedItem(likeCount, isLiked, imgUrl));
 //                        scrollListener.visibleThreshold=feedResult.getFeed_items().size();
                         feedAdapter.add(new FeedAdapter.FeedItem(item.getMedia_or_ad()));
                         runOnUiThread(new Runnable() {

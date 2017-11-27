@@ -6,7 +6,7 @@ android {
     buildToolsVersion '27.0.1'
     defaultConfig {
         applicationId "io.github.froger.instamaterial"
-        minSdkVersion 22
+        minSdkVersion 19
         targetSdkVersion 27
         versionCode 2
         versionName "1.0.1"
@@ -19,7 +19,7 @@ android {
     productFlavors {
         dev {
             dimension "stage"
-            minSdkVersion 21
+            minSdkVersion 19
             versionNameSuffix "-dev"
             applicationIdSuffix '.dev'
             resConfigs "en", "xxhdpi"
@@ -29,6 +29,8 @@ android {
 
         prod {
             dimension "stage"
+            minSdkVersion 19
+
         }
 
         demo {
