@@ -76,6 +76,7 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
 
     boolean isLoading = false;
     boolean isLastPage = false;
+    boolean isRefresh=false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -136,10 +137,10 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
 
     private void setupFeed() {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this) {
-//            @Override
-//            protected int getExtraLayoutSpace(RecyclerView.State state) {
-//                return 300;
-//            }
+            @Override
+            protected int getExtraLayoutSpace(RecyclerView.State state) {
+                return 300;
+            }
         };
         rvFeed.setLayoutManager(linearLayoutManager);
 
@@ -147,7 +148,7 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
         feedAdapter = new FeedAdapter(this);
         feedAdapter.setOnFeedItemClickListener(this);
         rvFeed.setAdapter(feedAdapter);
-
+        isRefresh=true;
         new Worker("UserFeed") {
             @Override
             protected void onPostExecute(Boolean success) {
@@ -157,6 +158,7 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
                     public void run() {
 //                        progressBar.getLayoutParams().height=ViewGroup.LayoutParams.WRAP_CONTENT;
                         rvFeed.setVisibility(View.VISIBLE);
+                        isRefresh=false;
                     }
                 });
             }
@@ -359,7 +361,9 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    progressBar.setVisibility(View.VISIBLE);
+                    if(!isRefresh){
+                        progressBar.setVisibility(View.VISIBLE);
+                    }
                 }
             });
             try {
