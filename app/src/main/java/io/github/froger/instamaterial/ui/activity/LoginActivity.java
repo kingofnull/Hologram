@@ -122,7 +122,7 @@ public class LoginActivity extends AppCompatActivity  {
         mPasswordView.setError(null);
 
         // Store values at the time of the login attempt.
-        String email = mUsernameView.getText().toString();
+        String user = mUsernameView.getText().toString();
         String password = mPasswordView.getText().toString();
 
         boolean cancel = false;
@@ -136,7 +136,7 @@ public class LoginActivity extends AppCompatActivity  {
         }
 
         // Check for a valid email address.
-        if (TextUtils.isEmpty(email)) {
+        if (TextUtils.isEmpty(user)) {
             mUsernameView.setError("نام کابری نباید خالی باشد!");
             focusView = mUsernameView;
             cancel = true;
@@ -150,7 +150,7 @@ public class LoginActivity extends AppCompatActivity  {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            mAuthTask = new UserLoginTask(email, password);
+            mAuthTask = new UserLoginTask(user, password);
             mAuthTask.execute((Void) null);
         }
 
@@ -206,11 +206,11 @@ public class LoginActivity extends AppCompatActivity  {
      */
     public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
 
-        private final String mEmail;
+        private final String mUser;
         private final String mPassword;
 
-        UserLoginTask(String email, String password) {
-            mEmail = email;
+        UserLoginTask(String user, String password) {
+            mUser = user;
             mPassword = password;
         }
 
@@ -220,14 +220,15 @@ public class LoginActivity extends AppCompatActivity  {
 
 
 
-            Instagram4Android instagram = Instagram4Android.builder().username(mEmail).password(mPassword).build();
+            Instagram4Android instagram = Instagram4Android.builder().username(mUser).password(mPassword).build();
             instagram.setup();
             try {
 
+                Log.i("Hologram","Try login: "+mUser+" / "+mPassword);
                 final InstagramLoginResult instagramLoginResult = instagram.login();
                 Log.i("Hologram", "Login " + instagram.isLoggedIn() + "/" + instagramLoginResult.getStatus() + "/" + instagramLoginResult.getMessage());
 
-                if(!instagramLoginResult.getMessage().trim().isEmpty()){
+                if(instagramLoginResult.getMessage()!=null && !instagramLoginResult.getMessage().trim().isEmpty()){
                     runOnUiThread(new Runnable() {
 
                         @Override
@@ -244,18 +245,20 @@ public class LoginActivity extends AppCompatActivity  {
 
             } catch (Exception e) {
 
-                e.printStackTrace();
+                Log.e("Hologram Login Failed",Log.getStackTraceString(e));
+                runOnUiThread(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        Toast.makeText(LoginActivity.this, "login failed with unknown reason", Toast.LENGTH_LONG).show();
+
+                    }
+                });
+
+
                 return false;
             }
 
-
-            for (String credential : DUMMY_CREDENTIALS) {
-                String[] pieces = credential.split(":");
-                if (pieces[0].equals(mEmail)) {
-                    // Account exists, return true if the password matches.
-                    return pieces[1].equals(mPassword);
-                }
-            }
 
             // TODO: register the new account here.
             return instagram.isLoggedIn();
@@ -273,7 +276,7 @@ public class LoginActivity extends AppCompatActivity  {
                 ed.putBoolean("initialized", true);
 
                 //Set some default shared pref
-                ed.putString("Username", mEmail);
+                ed.putString("Username", mUser);
                 ed.putString("Password", mPassword);
                 ed.commit();
 
