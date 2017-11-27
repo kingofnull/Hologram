@@ -13,8 +13,12 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
-import butterknife.ButterKnife;
+import java.util.ArrayList;
+import java.util.List;
+
 import butterknife.BindView;
+import butterknife.ButterKnife;
+import dev.niekirk.com.instagram4android.requests.payload.InstagramComment;
 import io.github.froger.instamaterial.R;
 import io.github.froger.instamaterial.ui.utils.RoundedTransformation;
 
@@ -27,6 +31,8 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private int itemsCount = 0;
     private int lastAnimatedPosition = -1;
     private int avatarSize;
+
+    public final List<CommentItem> commentItems = new ArrayList<>();
 
     private boolean animationsLocked = false;
     private boolean delayEnterAnimation = true;
@@ -46,20 +52,13 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
         runEnterAnimation(viewHolder.itemView, position);
         CommentViewHolder holder = (CommentViewHolder) viewHolder;
-        switch (position % 3) {
-            case 0:
-                holder.tvComment.setText("Lorem ipsum dolor sit amet, consectetur adipisicing elit.");
-                break;
-            case 1:
-                holder.tvComment.setText("Cupcake ipsum dolor sit amet bear claw.");
-                break;
-            case 2:
-                holder.tvComment.setText("Cupcake ipsum dolor sit. Amet gingerbread cupcake. Gummies ice cream dessert icing marzipan apple pie dessert sugar plum.");
-                break;
-        }
+
+        CommentItem item = commentItems.get(position);
+        String txt = item.userName + ":\n\n" + item.text;
+        holder.tvComment.setText(txt);
 
         Picasso.with(context)
-                .load(R.drawable.ic_launcher)
+                .load(item.picProfile)
                 .centerCrop()
                 .resize(avatarSize, avatarSize)
                 .transform(new RoundedTransformation())
@@ -101,6 +100,28 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public void addItem() {
         itemsCount++;
         notifyItemInserted(itemsCount - 1);
+    }
+
+    public static class CommentItem {
+
+        public String text;
+        public String picProfile;
+        public String userName;
+
+        public CommentItem(InstagramComment item) {
+            this.text = item.getText();
+            this.picProfile = item.getUser().getProfile_pic_url();
+            this.userName = item.getUser().getUsername();
+
+        }
+    }
+
+    public boolean add(CommentItem r) {
+        itemsCount++;
+        boolean s = commentItems.add(r);
+        if (s) {
+        }
+        return s;
     }
 
     public void setAnimationsLocked(boolean animationsLocked) {

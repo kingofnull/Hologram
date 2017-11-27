@@ -222,7 +222,7 @@ public class LoginActivity extends AppCompatActivity  {
             instagram.setup();
             try {
 
-                Log.i("Hologram","Try login: "+mUser+" / "+mPassword);
+                Log.i("Hologram", "Try login: " + mUser + " / " + "********");
                 final InstagramLoginResult instagramLoginResult = instagram.login();
                 Log.i("Hologram", "Login " + instagram.isLoggedIn() + "/" + instagramLoginResult.getStatus() + "/" + instagramLoginResult.getMessage());
 

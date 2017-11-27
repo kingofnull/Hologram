@@ -220,6 +220,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
             Picasso.with(context)
                     .load(feedItem.imgUrl)
+                    //.networkPolicy(NetworkPolicy.OFFLINE)
                     .into(ivFeedCenter);
 
             Picasso.with(context)
@@ -261,7 +262,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         public int likesCount;
         public boolean isLiked;
         public String imgUrl;
-        public String itemId;
+        public long itemId;
         public String caption;
         public String userName;
         public String picProfile;
@@ -271,7 +272,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             this.isLiked = item.isHas_liked();
             this.imgUrl = item.getImage_versions2().getCandidates().get(0).getUrl();
             this.caption = item.getCaption() != null ? (String) item.getCaption().get("text") : "";
-            this.itemId = item.getId();
+            this.itemId = item.getPk();
             this.userName = item.getUser().getUsername();
             this.picProfile = item.getUser().getProfile_pic_url();
         }
