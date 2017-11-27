@@ -5,7 +5,7 @@ android {
     compileSdkVersion 27
     buildToolsVersion '27.0.1'
     defaultConfig {
-        applicationId "io.github.froger.instamaterial"
+        applicationId "ir.hologram"
         minSdkVersion 19
         targetSdkVersion 27
         versionCode 2

@@ -223,10 +223,9 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     .into(ivFeedCenter);
 
             Picasso.with(context)
-                    .load(feedItem.picProgile)
+                    .load(feedItem.picProfile)
                     .transform(new CircleTransformation())
                     .into(ivUserProfile);
-
 
             //ivFeedCenter.setImageResource(adapterPosition % 2 == 0 ? R.drawable.img_feed_center_1 : R.drawable.img_feed_center_2);
             ivFeedBottom.setText(feedItem.caption);
@@ -265,16 +264,16 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         public String itemId;
         public String caption;
         public String userName;
-        public String picProgile;
+        public String picProfile;
 
         public FeedItem(InstagramFeedItem item) {
             this.likesCount = item.getLike_count();
             this.isLiked = item.isHas_liked();
             this.imgUrl = item.getImage_versions2().getCandidates().get(0).getUrl();
-            this.caption = item.getCaption().get("text")!=null ? (String) item.getCaption().get("text"):"";
+            this.caption = item.getCaption() != null ? (String) item.getCaption().get("text") : "";
             this.itemId = item.getId();
             this.userName = item.getUser().getUsername();
-            this.picProgile = item.getUser().getProfile_pic_url();
+            this.picProfile = item.getUser().getProfile_pic_url();
         }
     }
 
