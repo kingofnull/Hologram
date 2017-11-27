@@ -232,9 +232,10 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             ivFeedBottom.setText(feedItem.caption);
             txtUserName.setText(feedItem.userName);
             btnLike.setImageResource(feedItem.isLiked ? R.drawable.ic_heart_red : R.drawable.ic_heart_outline_grey);
-            tsLikesCounter.setCurrentText(vImageRoot.getResources().getQuantityString(
+           /* tsLikesCounter.setCurrentText(vImageRoot.getResources().getQuantityString(
                     R.plurals.likes_count, feedItem.likesCount, feedItem.likesCount
-            ));
+            ));*/
+            tsLikesCounter.setCurrentText(feedItem.likesCount>1000?feedItem.likesCount/1000+"K":feedItem.likesCount+  "");
         }
 
         public FeedItem getFeedItem() {
@@ -270,7 +271,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             this.likesCount = item.getLike_count();
             this.isLiked = item.isHas_liked();
             this.imgUrl = item.getImage_versions2().getCandidates().get(0).getUrl();
-            this.caption = (String) item.getCaption().get("text");
+            this.caption = item.getCaption().get("text")!=null ? (String) item.getCaption().get("text"):"";
             this.itemId = item.getId();
             this.userName = item.getUser().getUsername();
             this.picProgile = item.getUser().getProfile_pic_url();

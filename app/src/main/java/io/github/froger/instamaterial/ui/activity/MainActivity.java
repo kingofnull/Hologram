@@ -9,6 +9,7 @@ import android.os.Handler;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -60,6 +61,9 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
     @BindView(R.id.content)
     CoordinatorLayout clContent;
 
+    @BindView(R.id.feedsSwipeRefreshLayout)
+    SwipeRefreshLayout feedsSwipeRefreshLayout;
+
     private FeedAdapter feedAdapter;
 
     private boolean pendingIntroAnimation;
@@ -67,10 +71,11 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
     public Instagram4Android instagram;
     private Bundle savedInstanceState;
 
-    private String mFeedsMaxId;
+    private String mFeedsMaxId = null;
     LinearLayoutManager linearLayoutManager;
 
-    boolean isLoading=false;
+    boolean isLoading = false;
+    boolean isLastPage = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,7 +111,7 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
         }
 
         Log.i("Hologram", "after launch!");
-        progressBar.getLayoutParams().height=ViewGroup.LayoutParams.MATCH_PARENT;
+        progressBar.getLayoutParams().height = ViewGroup.LayoutParams.MATCH_PARENT;
     }
 
     @Override
@@ -139,7 +144,6 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
         rvFeed.setLayoutManager(linearLayoutManager);
 
 
-
         feedAdapter = new FeedAdapter(this);
         feedAdapter.setOnFeedItemClickListener(this);
         rvFeed.setAdapter(feedAdapter);
@@ -159,11 +163,10 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
         }.execute((String) null);
 
 
-
         scrollListener = new EndlessRecyclerViewScrollListener(linearLayoutManager) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-                if(!isLoading){
+                if (!isLastPage && !isLoading) {
                     new Worker("UserFeed").execute((String) null);
                 }
             }
@@ -171,6 +174,27 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
 
         rvFeed.addOnScrollListener(scrollListener);
         rvFeed.setItemAnimator(new FeedItemAnimator());
+
+        feedsSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                scrollListener.resetState();
+                feedAdapter.feedItems.clear();
+                feedAdapter.notifyDataSetChanged();
+                new Worker("UserFeed") {
+                    @Override
+                    protected void onPostExecute(Boolean success) {
+                        super.onPostExecute(success);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                feedsSwipeRefreshLayout.setRefreshing(false);
+                            }
+                        });
+                    }
+                }.execute((String) null);
+            }
+        });
     }
 
     public void loadNextDataFromApi(int offset) {
@@ -331,6 +355,13 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
 
         // fetch user feed
         public void getUserFeed() {
+            isLoading = true;
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    progressBar.setVisibility(View.VISIBLE);
+                }
+            });
             try {
 
                 Log.i("Hologram", "Read User Feeds");
@@ -344,13 +375,7 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
 //                        System.out.println("MAX ID: " + maxId);
 //                    }
 
-                isLoading=true;
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        progressBar.setVisibility(View.VISIBLE);
-                    }
-                });
+
 
                 InstagramTimelineFeedResult feedResult = instagram.sendRequest(new InstagramTimelineFeedRequest(mFeedsMaxId, null));
                 Log.i("Hologram", "User feeds loaded!");
@@ -385,20 +410,23 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
 
 
 
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        progressBar.setVisibility(View.GONE);
-                    }
-                });
-
-                isLoading=false;
                 mFeedsMaxId = feedResult.getNext_max_id();
-
+                if(mFeedsMaxId==null){
+                    isLastPage=true;
+                }
+                Log.i("Hologram MaxId", mFeedsMaxId + "");
 
             } catch (Exception e) {
                 Log.e("Hologram", Log.getStackTraceString(e));
             }
+
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    progressBar.setVisibility(View.GONE);
+                }
+            });
+            isLoading = false;
         }
 
         @Override

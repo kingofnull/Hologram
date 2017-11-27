@@ -267,7 +267,6 @@ public class LoginActivity extends AppCompatActivity  {
         @Override
         protected void onPostExecute(final Boolean success) {
             mAuthTask = null;
-            showProgress(false);
             SharedPreferences sharedPrefs = getSharedPreferences("USER_INFO", MODE_PRIVATE);
             SharedPreferences.Editor ed = sharedPrefs.edit();
             if (success) {
