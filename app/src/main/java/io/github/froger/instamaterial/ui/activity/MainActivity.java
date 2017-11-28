@@ -201,10 +201,6 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
         });
     }
 
-    public void loadNextDataFromApi(int offset) {
-
-    }
-
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
@@ -274,11 +270,12 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
 
     @Override
     public void onCommentsClick(View v, int position) {
-
+        FeedAdapter.FeedItem item = feedAdapter.feedItems.get(position);
         final Intent intent = new Intent(this, CommentsActivity.class);
         int[] startingLocation = new int[2];
         v.getLocationOnScreen(startingLocation);
-        intent.putExtra(CommentsActivity.ARG_DRAWING_START_LOCATION, startingLocation[1]);
+        intent.putExtra(CommentsActivity.ARG_DRAWING_START_LOCATION, startingLocation[0]);
+        intent.putExtra(CommentsActivity.MEDIA_ID, item.itemId);
         startActivity(intent);
         overridePendingTransition(0, 0);
     }
@@ -375,14 +372,6 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
                 InstagramFeedResult result = instagram.sendRequest(new InstagramUserFeedRequest(instagram.getUserId(), null, 0L));
                 List<InstagramFeedItem> items = result.getItems();
 
-//                String maxId = null;
-//                for (int i = 0; i < 4; i++) {
-//                    if (i > 0) {
-//                        System.out.println("MAX ID: " + maxId);
-//                    }
-
-
-
                 InstagramTimelineFeedResult feedResult = instagram.sendRequest(new InstagramTimelineFeedRequest(mFeedsMaxId, null));
                 Log.i("Hologram", "User feeds loaded!");
                 for (InstagramTimelineFeedItem item : feedResult.getFeed_items()) {
@@ -392,13 +381,6 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
                     } else {
                         Log.i("Hologram", "Add Feeds" + item.getMedia_or_ad().getImage_versions2().getCandidates().get(0).getUrl());
 
-                        String imgUrl = item.getMedia_or_ad().getImage_versions2().getCandidates().get(0).getUrl();
-                        int likeCount = item.getMedia_or_ad().getLike_count();
-                        boolean isLiked = item.getMedia_or_ad().isHas_liked();
-
-//                            feedAdapter.feedItems.add(new FeedAdapter.FeedItem(likeCount, isLiked, imgUrl));
-//                        feedAdapter.add(new FeedAdapter.FeedItem(likeCount, isLiked, imgUrl));
-//                        scrollListener.visibleThreshold=feedResult.getFeed_items().size();
                         feedAdapter.add(new FeedAdapter.FeedItem(item.getMedia_or_ad()));
                         runOnUiThread(new Runnable() {
                             @Override
@@ -407,9 +389,7 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
                             }
                         });
 
-
                         Thread.sleep(100);
-
 
                     }
                 }
