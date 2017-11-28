@@ -19,7 +19,7 @@
             android:layout_height="wrap_content"
             android:src="@drawable/ic_feed_top" />
 
-        <io.github.froger.instamaterial.ui.view.SquaredFrameLayout
+        <ir.holugram.ui.view.SquaredFrameLayout
             android:id="@+id/vImageRoot"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -51,13 +51,13 @@
                 android:layout_height="match_parent"
                 android:background="#77ffffff" />
 
-            <io.github.froger.instamaterial.ui.view.SendingProgressView
+            <ir.holugram.ui.view.SendingProgressView
                 android:id="@+id/vSendingProgress"
                 android:layout_width="200dp"
                 android:layout_height="200dp"
                 android:layout_gravity="center" />
 
-        </io.github.froger.instamaterial.ui.view.SquaredFrameLayout>
+        </ir.holugram.ui.view.SquaredFrameLayout>
 
         <ImageView
             android:id="@+id/ivFeedBottom"

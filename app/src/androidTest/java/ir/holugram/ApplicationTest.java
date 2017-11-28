@@ -1,4 +1,4 @@
-package io.github.froger.instamaterial;
+package ir.holugram;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

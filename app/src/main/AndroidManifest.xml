@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="io.github.froger.instamaterial">
+    package="ir.holugram">
 
     <uses-sdk tools:overrideLibrary="dev.niekirk.com.instagram4android,com.github.hiteshsondhi88.libffmpeg" />
 
@@ -25,13 +25,13 @@
     <uses-permission android:name="android.permission.READ_CONTACTS" />
 
     <application
-        android:name=".InstaMaterialApplication"
+        android:name="ir.holugram.HolugramApplication"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme"
         tools:replace="android:icon">
         <activity
-            android:name=".ui.activity.MainActivity"
+            android:name="ir.holugram.ui.activity.MainActivity"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -40,24 +40,24 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.activity.CommentsActivity"
+            android:name="ir.holugram.ui.activity.CommentsActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.TransparentActivity" />
         <activity
-            android:name=".ui.activity.UserProfileActivity"
+            android:name="ir.holugram.ui.activity.UserProfileActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.TransparentActivity" />
         <activity
-            android:name=".ui.activity.TakePhotoActivity"
+            android:name="ir.holugram.ui.activity.TakePhotoActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.TransparentActivity" />
         <activity
-            android:name=".ui.activity.PublishActivity"
+            android:name="ir.holugram.ui.activity.PublishActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme"
             android:windowSoftInputMode="stateHidden" />
         <activity
-            android:name=".ui.activity.LoginActivity"
+            android:name="ir.holugram.ui.activity.LoginActivity"
             android:label="@string/title_activity_login"></activity>
     </application>
 
