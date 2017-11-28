@@ -62,6 +62,9 @@ dependencies {
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.4.0'
     compile 'com.jakewharton.timber:timber:4.3.1'
     compile 'com.squareup.picasso:picasso:2.5.2'
+    compile 'com.squareup.okhttp:okhttp:2.4.0'
+    compile 'com.jakewharton.picasso:picasso2-okhttp3-downloader:1.0.2'
+
     compile 'com.commonsware.cwac:camera:0.7.+'
     compile 'com.github.charlieAndroidDev:Instagram4Android:v0.1.32'
     compile  'com.github.pwittchen:infinitescroll:0.0.1'
