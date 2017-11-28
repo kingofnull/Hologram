@@ -233,15 +233,16 @@ public class CommentsActivity extends BaseDrawerActivity implements SendCommentB
 
                     Log.i("Hologram ->> comment", item.getText());
                     commentsAdapter.add(new CommentsAdapter.CommentItem(item));
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            commentsAdapter.notifyItemInserted(commentsAdapter.commentItems.size() - 1);
-                        }
-                    });
 
-                    Thread.sleep(100);
                 }
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        commentsAdapter.notifyItemInserted(commentsAdapter.commentItems.size() - 1);
+                    }
+                });
+
 
                 maxCommentId = commentsResult.getNext_max_id();
                 if (maxCommentId == null) {
