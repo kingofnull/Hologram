@@ -28,6 +28,15 @@
                 android:layout_height="match_parent"
                 android:scrollbars="none" />
 
+            <ProgressBar
+                android:id="@+id/commentProgressBar"
+                style="?android:attr/progressBarStyle"
+                android:layout_width="70dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_marginBottom="12dp"
+                android:visibility="invisible" />
+
             <View
                 android:layout_width="match_parent"
                 android:layout_height="4dp"

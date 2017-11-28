@@ -2,6 +2,7 @@ package ir.holugram.ui.activity;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -17,6 +18,7 @@ import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 
 import butterknife.BindView;
 import dev.niekirk.com.instagram4android.Instagram4Android;
@@ -48,6 +50,8 @@ public class CommentsActivity extends BaseDrawerActivity implements SendCommentB
     EditText etComment;
     @BindView(R.id.btnSendComment)
     SendCommentButton btnSendComment;
+    @BindView(R.id.commentProgressBar)
+    ProgressBar progressBar;
 
     private CommentsAdapter commentsAdapter;
     private int drawingStartLocation;
@@ -57,6 +61,7 @@ public class CommentsActivity extends BaseDrawerActivity implements SendCommentB
     boolean isLastPage = false;
 
     private String maxCommentId = null;
+    private ProgressDialog pd;
 
     public Instagram4Android instagram;
 
@@ -205,7 +210,7 @@ public class CommentsActivity extends BaseDrawerActivity implements SendCommentB
 
             switch (option) {
                 case "Comments":
-                    getComments();
+                    getComments(true);
                     break;
             }
 
@@ -215,7 +220,7 @@ public class CommentsActivity extends BaseDrawerActivity implements SendCommentB
 
 
         // fetch user feed
-        public void getComments() {
+        public void getComments(boolean first) {
             isLoading = true;
             runOnUiThread(new Runnable() {
                 @Override
@@ -224,6 +229,15 @@ public class CommentsActivity extends BaseDrawerActivity implements SendCommentB
                 }
             });
             try {
+
+                if(first){
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            progressBar.setVisibility(View.VISIBLE);
+                        }
+                    });
+                }
 
                 Log.i("Hologram", "Read User Comments");
 
@@ -239,10 +253,10 @@ public class CommentsActivity extends BaseDrawerActivity implements SendCommentB
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        progressBar.setVisibility(View.INVISIBLE);
                         commentsAdapter.notifyItemInserted(commentsAdapter.commentItems.size() - 1);
                     }
                 });
-
 
                 maxCommentId = commentsResult.getNext_max_id();
                 if (maxCommentId == null) {
@@ -250,16 +264,14 @@ public class CommentsActivity extends BaseDrawerActivity implements SendCommentB
                 }
                 Log.i("Hologram MaxId", maxCommentId + "");
 
+                if(first){
+                    this.getComments(false);
+                }
+
             } catch (Exception e) {
                 Log.e("Hologram", Log.getStackTraceString(e));
             }
 
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    //progressBar.setVisibility(View.GONE);
-                }
-            });
             isLoading = false;
         }
 
