@@ -56,14 +56,6 @@
             android:paddingRight="8dp"
             android:paddingTop="8dp">
 
-            <EditText
-                android:id="@+id/etComment"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:textColor="#555555"
-                android:textSize="14sp" />
-
             <ir.holugram.ui.view.SendCommentButton
                 android:id="@+id/btnSendComment"
                 android:layout_width="72dp"
@@ -73,6 +65,16 @@
                 android:background="@drawable/btn_send_comment"
                 android:elevation="4dp"
                 android:orientation="vertical" />
+
+            <EditText
+                android:id="@+id/etComment"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textColor="#555555"
+                android:textSize="14sp" />
+
+
 
         </LinearLayout>
     </LinearLayout>
