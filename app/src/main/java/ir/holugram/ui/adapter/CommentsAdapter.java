@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,8 +14,18 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.temporal.Temporal;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.TimeZone;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -29,9 +40,9 @@ import ir.holugram.ui.utils.RoundedTransformation;
 public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private Context context;
-    private int itemsCount = 0;
     private int lastAnimatedPosition = -1;
     private int avatarSize;
+    private  static long curTime = Calendar.getInstance(TimeZone.getTimeZone("UTC")).getTimeInMillis();
 
     public final List<CommentItem> commentItems = new ArrayList<>();
 
@@ -41,6 +52,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public CommentsAdapter(Context context) {
         this.context = context;
         avatarSize = context.getResources().getDimensionPixelSize(R.dimen.comment_avatar_size);
+
     }
 
     @Override
@@ -54,8 +66,11 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         runEnterAnimation(viewHolder.itemView, position);
         CommentViewHolder holder = (CommentViewHolder) viewHolder;
 
+        if (commentItems.get(position) == null)
+            return;
+
         CommentItem item = commentItems.get(position);
-        String txt = item.userName + ":\n\n" + item.text;
+        String txt = item.userName + ":\n\n" + item.text + "\n\n" + item.agoTime;
         holder.tvComment.setText(txt);
 
         Picasso.with(context)
@@ -71,7 +86,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
         if (position > lastAnimatedPosition) {
             lastAnimatedPosition = position;
-            view.setTranslationY(100);
+            //view.setTranslationY(100);
             view.setAlpha(0.f);
             view.animate()
                     .translationY(0).alpha(1.f)
@@ -90,17 +105,15 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     @Override
     public int getItemCount() {
-        return itemsCount;
+        return commentItems.size();
     }
 
     public void updateItems() {
-        itemsCount = 10;
         notifyDataSetChanged();
     }
 
     public void addItem() {
-        itemsCount++;
-        notifyItemInserted(itemsCount - 1);
+        notifyItemInserted(getItemCount() - 1);
     }
 
     public static class CommentItem {
@@ -108,17 +121,47 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         public String text;
         public String picProfile;
         public String userName;
+        public long userId;
+        public String agoTime;
 
         public CommentItem(InstagramComment item) {
-            this.text = item.getText();
-            this.picProfile = item.getUser().getProfile_pic_url();
-            this.userName = item.getUser().getUsername();
+            text = item.getText();
+            picProfile = item.getUser().getProfile_pic_url();
+            userName = item.getUser().getUsername();
+            userId = item.getUser_id();
+            agoTime = calcTime(item.getCreated_at_utc());
 
+        }
+
+        private String calcTime(long time) {
+
+            long seconds = (curTime - time) / 1000;
+            long minute = seconds / 60;
+            long hour = minute / 60;
+            long date = hour / 24;
+            long month = date / 30;
+            long year = month / 12;
+
+            String result = "";
+
+            if (year > 1)
+                result = year + " سال پیش";
+            else if (month > 1)
+                result = month + " ماه پیش";
+            else if (date > 1)
+                result = date + " روز پیش";
+            else if (hour > 1)
+                result = hour + " ساعت پیش";
+            else if (minute > 1)
+                result = minute + " دقیقه پیش";
+            else if (seconds > 1)
+                result = "چند لحظه پیش";
+
+            return result;
         }
     }
 
     public boolean add(CommentItem r) {
-        itemsCount++;
         boolean s = commentItems.add(r);
         if (s) {
         }

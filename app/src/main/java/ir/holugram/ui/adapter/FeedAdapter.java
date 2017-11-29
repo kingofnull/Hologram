@@ -197,12 +197,12 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
             Picasso.with(context)
                     .load(feedItem.imgUrl)
-//                    .networkPolicy(NetworkPolicy.OFFLINE)
+                    //.networkPolicy(NetworkPolicy.OFFLINE)
                     .into(ivFeedCenter);
 
             Picasso.with(context)
                     .load(feedItem.picProfile)
-//                    .networkPolicy(NetworkPolicy.OFFLINE)
+                    //.networkPolicy(NetworkPolicy.OFFLINE)
                     .transform(new CircleTransformation())
                     .into(ivUserProfile);
 
