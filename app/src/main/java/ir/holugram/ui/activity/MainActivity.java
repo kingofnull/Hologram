@@ -31,13 +31,13 @@ import dev.niekirk.com.instagram4android.requests.payload.InstagramFeedResult;
 import dev.niekirk.com.instagram4android.requests.payload.InstagramTimelineFeedItem;
 import dev.niekirk.com.instagram4android.requests.payload.InstagramTimelineFeedResult;
 import ir.holugram.HolugramApplication;
+import ir.holugram.R;
 import ir.holugram.Utils;
 import ir.holugram.ui.adapter.FeedAdapter;
 import ir.holugram.ui.adapter.FeedItemAnimator;
 import ir.holugram.ui.utils.EndlessRecyclerViewScrollListener;
 import ir.holugram.ui.view.FeedContextMenu;
 import ir.holugram.ui.view.FeedContextMenuManager;
-import ir.holugram.R;
 
 
 public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFeedItemClickListener,
@@ -76,7 +76,7 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
 
     boolean isLoading = false;
     boolean isLastPage = false;
-    boolean isRefresh=false;
+    boolean isRefresh = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -183,7 +183,7 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
                 scrollListener.resetState();
                 feedAdapter.feedItems.clear();
                 feedAdapter.notifyDataSetChanged();
-                isRefresh=true;
+                isRefresh = true;
                 new Worker("UserFeed") {
                     @Override
                     protected void onPostExecute(Boolean success) {
@@ -192,7 +192,7 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
                             @Override
                             public void run() {
                                 feedsSwipeRefreshLayout.setRefreshing(false);
-                                isRefresh=false;
+                                isRefresh = false;
                             }
                         });
                     }
@@ -350,7 +350,28 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
 
             switch (option) {
                 case "UserFeed":
+                    isLoading = true;
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (!isRefresh) {
+                                progressBar.setVisibility(View.VISIBLE);
+                            }
+                        }
+                    });
+
                     getUserFeed();
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            progressBar.setVisibility(View.GONE);
+                        }
+                    });
+
+                    getUserFeed();
+                    isLoading = false;
+
                     break;
             }
 
@@ -361,17 +382,8 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
 
         // fetch user feed
         public void getUserFeed() {
-            isLoading = true;
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    if(!isRefresh){
-                        progressBar.setVisibility(View.VISIBLE);
-                    }
-                }
-            });
-            try {
 
+            try {
                 Log.i("Hologram", "Read User Feeds");
 
                 InstagramFeedResult result = instagram.sendRequest(new InstagramUserFeedRequest(instagram.getUserId(), null, 0L));
@@ -401,10 +413,9 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
                 }
 
 
-
                 mFeedsMaxId = feedResult.getNext_max_id();
-                if(mFeedsMaxId==null){
-                    isLastPage=true;
+                if (mFeedsMaxId == null) {
+                    isLastPage = true;
                 }
                 Log.i("Hologram MaxId", mFeedsMaxId + "");
 
@@ -412,31 +423,10 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
                 Log.e("Hologram", Log.getStackTraceString(e));
             }
 
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    progressBar.setVisibility(View.GONE);
-                }
-            });
-            isLoading = false;
-        }
-
-        @Override
-        protected void onPostExecute(final Boolean success) {
-
-            if (success) {
-
-            } else {
-
-            }
-        }
-
-        @Override
-        protected void onCancelled() {
 
         }
+
     }
-
 
 
 }
