@@ -109,7 +109,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         cellFeedViewHolder.ivUserProfile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onFeedItemClickListener.onProfileClick(view);
+                onFeedItemClickListener.onProfileClick(view, cellFeedViewHolder.getAdapterPosition());
             }
         });
         cellFeedViewHolder.ivFeedBottom.setOnClickListener(new View.OnClickListener() {
@@ -261,6 +261,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         public long itemId;
         public String caption;
         public String userName;
+        public long userId;
         public String picProfile;
 
         public FeedItem(InstagramFeedItem item) {
@@ -271,6 +272,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             this.itemId = item.getPk();
             this.userName = item.getUser().getUsername();
             this.picProfile = item.getUser().getProfile_pic_url();
+            this.userId = item.getUser().getPk();
         }
     }
 
@@ -281,7 +283,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         void onMoreClick(View v, int position);
 
-        void onProfileClick(View v);
+        void onProfileClick(View v, int position);
     }
 
     public boolean add(FeedItem r) {

@@ -84,7 +84,7 @@ public class BaseDrawerActivity extends BaseActivity {
                 int[] startingLocation = new int[2];
                 v.getLocationOnScreen(startingLocation);
                 startingLocation[0] += v.getWidth() / 2;
-                ir.holugram.ui.activity.UserProfileActivity.startUserProfileFromLocation(startingLocation, BaseDrawerActivity.this);
+                ir.holugram.ui.activity.UserProfileActivity.startUserProfileFromLocation(startingLocation, BaseDrawerActivity.this,0);
                 overridePendingTransition(0, 0);
             }
         }, 200);

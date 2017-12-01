@@ -3,6 +3,7 @@ package ir.holugram.ui.adapter;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
+import android.support.v7.widget.LinearLayoutCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -33,6 +34,7 @@ import dev.niekirk.com.instagram4android.requests.payload.InstagramComment;
 import ir.holugram.R;
 import ir.holugram.ui.activity.MainActivity;
 import ir.holugram.ui.utils.RoundedTransformation;
+import ir.holugram.ui.view.LoadingFeedItemView;
 
 
 /**
@@ -43,7 +45,10 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private Context context;
     private int lastAnimatedPosition = -1;
     private int avatarSize;
+
     private static long curTime = Calendar.getInstance(TimeZone.getTimeZone("UTC")).getTimeInMillis();
+    public  static final int VIEW_TYPE_DEFAULT = 1;
+    public  static final int VIEW_TYPE_LOADER = 2;
 
     public final List<CommentItem> commentItems = new ArrayList<>();
 
@@ -60,17 +65,20 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        final View view = LayoutInflater.from(context).inflate(R.layout.item_comment, parent, false);
-        CommentViewHolder cellCommentViewHolder = new CommentViewHolder(view);
-        setupClickableViews(view, cellCommentViewHolder);
-        return new CommentViewHolder(view);
+
+        View view = LayoutInflater.from(context).inflate(R.layout.item_comment, parent, false);
+        CommentViewHolder cellFeedViewHolder = new CommentViewHolder(view);
+        setupClickableViews(view, cellFeedViewHolder);
+        return cellFeedViewHolder;
+
     }
 
-    private void setupClickableViews(final View view, final CommentViewHolder cellFeedViewHolder) {
-        cellFeedViewHolder.ivUserAvatar.setOnClickListener(new View.OnClickListener() {
+    private void setupClickableViews(final View view, final CommentViewHolder cellCommentViewHolder) {
+        cellCommentViewHolder.ivUserAvatar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onCommentClickListener.onProfileClick(view);
+                Log.i("Hologram", "Position " + cellCommentViewHolder.getAdapterPosition());
+                onCommentClickListener.onProfileClick(view, cellCommentViewHolder.getAdapterPosition());
             }
         });
     }
@@ -203,11 +211,8 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     public interface OnCommentClickListener {
-        void onCommentsClick(View v, int position);
 
-        void onMoreClick(View v, int position);
-
-        void onProfileClick(View v);
+        void onProfileClick(View v, int itemPosition);
     }
 
 }

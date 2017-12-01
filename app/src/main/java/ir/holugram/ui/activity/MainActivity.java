@@ -302,11 +302,13 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
     }
 
     @Override
-    public void onProfileClick(View v) {
+    public void onProfileClick(View v, int position) {
+        FeedAdapter.FeedItem item = feedAdapter.feedItems.get(position);
         int[] startingLocation = new int[2];
         v.getLocationOnScreen(startingLocation);
         startingLocation[0] += v.getWidth() / 2;
-        UserProfileActivity.startUserProfileFromLocation(startingLocation, this);
+        long userId = item.userId;
+        UserProfileActivity.startUserProfileFromLocation(startingLocation, this, userId);
         overridePendingTransition(0, 0);
     }
 

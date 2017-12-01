@@ -33,13 +33,14 @@ import ir.holugram.HolugramApplication;
 import ir.holugram.R;
 import ir.holugram.Utils;
 import ir.holugram.ui.adapter.CommentsAdapter;
+import ir.holugram.ui.adapter.FeedAdapter;
 import ir.holugram.ui.utils.EndlessRecyclerViewScrollListener;
 import ir.holugram.ui.view.SendCommentButton;
 
 /**
  * Created by froger_mcs on 11.11.14.
  */
-public class CommentsActivity extends BaseDrawerActivity implements SendCommentButton.OnSendClickListener {
+public class CommentsActivity extends BaseDrawerActivity implements SendCommentButton.OnSendClickListener, CommentsAdapter.OnCommentClickListener {
     public static final String ARG_DRAWING_START_LOCATION = "arg_drawing_start_location";
     public static final String MEDIA_ID = "arg_media_id";
 
@@ -143,7 +144,6 @@ public class CommentsActivity extends BaseDrawerActivity implements SendCommentB
                     public void onAnimationEnd(Animator animation) {
                         ViewCompat.setElevation(getToolbar(), Utils.dpToPx(8));
                         new Worker("Comments").execute((String) null);
-
                     }
                 })
                 .start();
@@ -186,6 +186,17 @@ public class CommentsActivity extends BaseDrawerActivity implements SendCommentB
             etComment.setText(null);
             btnSendComment.setCurrentState(SendCommentButton.STATE_DONE);
         }
+    }
+
+    @Override
+    public void onProfileClick(View v, int position) {
+        CommentsAdapter.CommentItem item = commentsAdapter.commentItems.get(position);
+        int[] startingLocation = new int[2];
+        v.getLocationOnScreen(startingLocation);
+        startingLocation[0] += v.getWidth() / 2;
+        long userId = item.userId;
+        UserProfileActivity.startUserProfileFromLocation(startingLocation, this, userId);
+        overridePendingTransition(0, 0);
     }
 
     private boolean validateComment() {
