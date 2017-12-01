@@ -2,12 +2,10 @@ package dev.niekirk.com.instagram4android.requests;
 
 import android.util.Log;
 
-import dev.niekirk.com.instagram4android.InstagramConstants;
-
 import java.io.IOException;
 
+import dev.niekirk.com.instagram4android.InstagramConstants;
 import okhttp3.Request;
-import okhttp3.RequestBody;
 import okhttp3.Response;
 
 /**
@@ -36,9 +34,12 @@ public abstract class InstagramGetRequest<T> extends InstagramRequest<T> {
         Response response = api.getClient().newCall(request).execute();
         api.setLastResponse(response);
 
+
+
         int resultCode = response.code();
         String content = response.body().string();
-//        Log.d("GET", "Code: " + resultCode);
+        Log.d("GET_Request", request.toString());
+        Log.d("GET_Response", content);
 
         return parseResult(resultCode, content);
 

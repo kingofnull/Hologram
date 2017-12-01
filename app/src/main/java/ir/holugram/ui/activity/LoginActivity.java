@@ -83,7 +83,6 @@ public class LoginActivity extends AppCompatActivity  {
             mPasswordView.setText(sharedPrefs.getString("Password", ""));
 
             attemptLogin();
-
         }
 
     }
@@ -270,6 +269,8 @@ public class LoginActivity extends AppCompatActivity  {
                 ed.putString("Username", mUser);
                 ed.putString("Password", mPassword);
                 ed.commit();
+
+                    instagram.savePreferences();
 
                 finish();
             } else {

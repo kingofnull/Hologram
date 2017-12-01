@@ -1,10 +1,12 @@
 package dev.niekirk.com.instagram4android;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.util.Log;
 
-import com.franmontiel.persistentcookiejar.PersistentCookieJar;
-import com.franmontiel.persistentcookiejar.cache.SetCookieCache;
-import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersistor;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -18,6 +20,7 @@ import dev.niekirk.com.instagram4android.requests.internal.InstagramFetchHeaders
 import dev.niekirk.com.instagram4android.requests.payload.InstagramLoginPayload;
 import dev.niekirk.com.instagram4android.requests.payload.InstagramLoginResult;
 import dev.niekirk.com.instagram4android.requests.payload.InstagramSyncFeaturesPayload;
+import dev.niekirk.com.instagram4android.requests.payload.StatusResult;
 import dev.niekirk.com.instagram4android.util.InstagramGenericUtil;
 import dev.niekirk.com.instagram4android.util.InstagramHashUtil;
 import lombok.Builder;
@@ -73,25 +76,15 @@ public class Instagram4Android {
 
     public CookieJar cookieJar;
 
+    private SharedPreferences preferences;
+    private final String STORAGE_NAME = "AuthData";
+
     @Builder
-    public Instagram4Android(Context context) {
+    public Instagram4Android(final Context context) {
         super();
         this.context = context;
-        cookieJar = new PersistentCookieJar(new SetCookieCache(), new SharedPrefsCookiePersistor(context));
-    }
-
-    public void setup() {
-
-        if (this.username.length() < 1) {
-            throw new IllegalArgumentException("Username is mandatory.");
-        }
-
-        if (this.password.length() < 1) {
-            throw new IllegalArgumentException("Password is mandatory.");
-        }
-
-        this.deviceId = InstagramHashUtil.generateDeviceId(this.username, this.password);
-        this.uuid = InstagramGenericUtil.generateUuid(true);
+        preferences = context.getSharedPreferences(STORAGE_NAME, Context.MODE_PRIVATE);
+        loadPreferences();
 
         cookieJar = new CookieJar() {
 
@@ -119,17 +112,37 @@ public class Instagram4Android {
                 return validCookies;
             }
         };
+//        cookieJar = new PersistentCookieJar(new SetCookieCache(), new SharedPrefsCookiePersistor(context));
+
 
         client = new OkHttpClient.Builder()
                 .cookieJar(cookieJar)
                 .build();
+    }
+
+    public void setup() {
+
+        Log.i("Instagram", "setup");
+        if (this.username.length() < 1) {
+            throw new IllegalArgumentException("Username is mandatory.");
+        }
+
+        if (this.password.length() < 1) {
+            throw new IllegalArgumentException("Password is mandatory.");
+        }
+
+        this.deviceId = InstagramHashUtil.generateDeviceId(this.username, this.password);
+        this.uuid = InstagramGenericUtil.generateUuid(true);
+
+
+//        cookieJar = new SerializableCookieJar(context);
+
 
     }
 
     public InstagramLoginResult login() throws IOException {
 
-        //Log.d("LOGIN", "Logging with user " + username + " and password " + password.replaceAll("[a-zA-Z0-9]", "*"));
-
+        Log.d("LOGIN", "Logging with user " + username + " and password " + password.replaceAll("[a-zA-Z0-9]", "*"));
         InstagramLoginPayload loginRequest = InstagramLoginPayload.builder().username(username)
                 .password(password)
                 .guid(uuid)
@@ -160,6 +173,8 @@ public class Instagram4Android {
             //this.sendRequest(new InstagramTimelineFeedRequest());
 //            this.sendRequest(new InstagramGetInboxRequest());
 //            this.sendRequest(new InstagramGetRecentActivityRequest());
+
+            savePreferences();
         }
 
 
@@ -203,7 +218,69 @@ public class Instagram4Android {
         request.setApi(this);
         T response = request.execute();
 
+        if (((StatusResult) response).getMessage() == "login_required") {
+            throw new IllegalStateException("Need to login first!");
+        }
+
         return response;
     }
 
+
+    public void savePreferences() {
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString("uuid", uuid);
+        editor.putString("rankToken", rankToken);
+        editor.putLong("userId", userId);
+        editor.putString("deviceId", deviceId);
+        editor.putBoolean("isLoggedIn", isLoggedIn);
+
+        JSONArray cookies = new JSONArray();
+        for (Cookie cookie : client.cookieJar().loadForRequest(null)) {
+            JSONObject obj = new JSONObject();
+            try {
+                obj.put("name", cookie.name());
+                obj.put("value", cookie.value());
+                obj.put("expire", cookie.expiresAt());
+                obj.put("domain", cookie.domain());
+                cookies.put(obj);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+
+        }
+
+        String cookiesStr = cookies.toString();
+        editor.putString("cookies", cookiesStr);
+        Log.i("Cookies", cookiesStr);
+        Log.i("savePreferences", editor.toString());
+        editor.apply();
+    }
+
+    public void loadPreferences() {
+        uuid = preferences.getString("uuid", null);
+        rankToken = preferences.getString("rankToken", null);
+        userId = preferences.getLong("userId", 0);
+        uuid = preferences.getString("uuid", null);
+        isLoggedIn = preferences.getBoolean("isLoggedIn", false);
+        try {
+            JSONArray cookies = new JSONArray(preferences.getString("cookies", ""));
+            for (int i = 0; i < cookies.length(); i++) {
+                JSONObject c = (JSONObject) cookies.get(i);
+                Cookie cookie = (new Cookie.Builder())
+                        .domain(c.getString("domain"))
+                        .name(c.getString("name"))
+                        .value(c.getString("value"))
+                        .expiresAt(c.getLong("expire"))
+                        .build();
+                cookieStore.add(cookie);
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        Log.i("loadPreferences", preferences.getAll().toString());
+
+    }
 }

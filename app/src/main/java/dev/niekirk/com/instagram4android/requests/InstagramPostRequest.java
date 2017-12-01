@@ -1,10 +1,11 @@
 package dev.niekirk.com.instagram4android.requests;
 
-import dev.niekirk.com.instagram4android.InstagramConstants;
-import dev.niekirk.com.instagram4android.util.InstagramHashUtil;
+import android.util.Log;
 
 import java.io.IOException;
 
+import dev.niekirk.com.instagram4android.InstagramConstants;
+import dev.niekirk.com.instagram4android.util.InstagramHashUtil;
 import okhttp3.MediaType;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -39,6 +40,9 @@ public abstract class InstagramPostRequest<T> extends InstagramRequest<T> {
 
         int resultCode = response.code();
         String content = response.body().string();
+
+        Log.d("GET_Request", request.toString());
+        Log.d("GET_Response", content);
 
         return parseResult(resultCode, content);
     }
