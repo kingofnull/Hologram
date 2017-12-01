@@ -2,13 +2,14 @@ package dev.niekirk.com.instagram4android;
 
 import android.content.Context;
 
-import com.franmontiel.persistentcookiejar.ClearableCookieJar;
 import com.franmontiel.persistentcookiejar.PersistentCookieJar;
 import com.franmontiel.persistentcookiejar.cache.SetCookieCache;
 import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersistor;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import dev.niekirk.com.instagram4android.requests.InstagramLoginRequest;
@@ -23,6 +24,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import okhttp3.Cookie;
+import okhttp3.CookieJar;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Response;
@@ -38,10 +40,12 @@ public class Instagram4Android {
     @Getter
     protected String deviceId;
 
-    @Getter @Setter
+    @Getter
+    @Setter
     private String username;
 
-    @Getter @Setter
+    @Getter
+    @Setter
     private String password;
 
     @Getter
@@ -50,13 +54,16 @@ public class Instagram4Android {
     @Getter
     private String uuid;
 
-    @Getter @Setter
+    @Getter
+    @Setter
     protected String rankToken;
 
-    @Getter @Setter
+    @Getter
+    @Setter
     private long userId;
 
-    @Getter @Setter
+    @Getter
+    @Setter
     protected Response lastResponse;
 
     @Getter
@@ -64,13 +71,13 @@ public class Instagram4Android {
 
     private final Set<Cookie> cookieStore = new HashSet<>();
 
-    public ClearableCookieJar cookieJar;
+    public CookieJar cookieJar;
 
     @Builder
     public Instagram4Android(Context context) {
         super();
-        this.context=context;
-        cookieJar =new PersistentCookieJar(new SetCookieCache(), new SharedPrefsCookiePersistor(context));
+        this.context = context;
+        cookieJar = new PersistentCookieJar(new SetCookieCache(), new SharedPrefsCookiePersistor(context));
     }
 
     public void setup() {
@@ -86,32 +93,33 @@ public class Instagram4Android {
         this.deviceId = InstagramHashUtil.generateDeviceId(this.username, this.password);
         this.uuid = InstagramGenericUtil.generateUuid(true);
 
-/*new CookieJar() {
+        cookieJar = new CookieJar() {
 
-                    @Override
-                    public void saveFromResponse(HttpUrl url, List<Cookie> cookies) {
-                        //Log.d("I4A", "Added cookies!");
-                        cookieStore.addAll(cookies);
+            @Override
+            public void saveFromResponse(HttpUrl url, List<Cookie> cookies) {
+                //Log.d("I4A", "Added cookies!");
+                cookieStore.addAll(cookies);
+            }
+
+            @Override
+            public List<Cookie> loadForRequest(HttpUrl url) {
+                List<Cookie> validCookies = new ArrayList<>();
+                for (Cookie cookie : cookieStore) {
+
+                    //Log.d("I4A", "Cookie: " + cookie.name());
+
+                    if (cookie.expiresAt() < System.currentTimeMillis()) {
+
+                    } else {
+                        validCookies.add(cookie);
                     }
 
-                    @Override
-                    public List<Cookie> loadForRequest(HttpUrl url) {
-                        List<Cookie> validCookies = new ArrayList<>();
-                        for(Cookie cookie: cookieStore) {
+                }
 
-                            //Log.d("I4A", "Cookie: " + cookie.name());
+                return validCookies;
+            }
+        };
 
-                            if(cookie.expiresAt() < System.currentTimeMillis()) {
-
-                            } else {
-                                validCookies.add(cookie);
-                            }
-
-                        }
-
-                        return validCookies;
-                    }
-                }*/
         client = new OkHttpClient.Builder()
                 .cookieJar(cookieJar)
                 .build();
@@ -146,6 +154,7 @@ public class Instagram4Android {
                     .experiments(InstagramConstants.DEVICE_EXPERIMENTS)
                     .build();
 
+
 //            this.sendRequest(new InstagramSyncFeaturesRequest(syncFeatures));
 //            this.sendRequest(new InstagramAutoCompleteUserListRequest());
             //this.sendRequest(new InstagramTimelineFeedRequest());
@@ -160,7 +169,7 @@ public class Instagram4Android {
     public String getOrFetchCsrf(HttpUrl url) throws IOException {
 
         Cookie cookie = getCsrfCookie(url);
-        if(cookie == null) {
+        if (cookie == null) {
             sendRequest(new InstagramFetchHeadersRequest());
             cookie = getCsrfCookie(url);
         }
@@ -171,10 +180,10 @@ public class Instagram4Android {
 
     public Cookie getCsrfCookie(HttpUrl url) {
 
-        for(Cookie cookie: client.cookieJar().loadForRequest(url)) {
+        for (Cookie cookie : client.cookieJar().loadForRequest(url)) {
 
 //            Log.d("GETCOOKIE", "Name: " + cookie.name());
-            if(cookie.name().equalsIgnoreCase("csrftoken")) {
+            if (cookie.name().equalsIgnoreCase("csrftoken")) {
                 return cookie;
             }
 
