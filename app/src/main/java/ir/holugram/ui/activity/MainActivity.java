@@ -184,6 +184,12 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
                 feedAdapter.feedItems.clear();
                 feedAdapter.notifyDataSetChanged();
                 isRefresh = true;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        progressBar.setVisibility(View.GONE);
+                    }
+                });
                 new Worker("UserFeed") {
                     @Override
                     protected void onPostExecute(Boolean success) {

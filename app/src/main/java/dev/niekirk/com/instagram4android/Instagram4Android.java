@@ -1,34 +1,28 @@
 package dev.niekirk.com.instagram4android;
 
-import android.text.TextUtils;
-import android.util.Log;
+import android.content.Context;
 
-import dev.niekirk.com.instagram4android.requests.InstagramAutoCompleteUserListRequest;
-import dev.niekirk.com.instagram4android.requests.InstagramGetInboxRequest;
-import dev.niekirk.com.instagram4android.requests.InstagramGetRecentActivityRequest;
+import com.franmontiel.persistentcookiejar.ClearableCookieJar;
+import com.franmontiel.persistentcookiejar.PersistentCookieJar;
+import com.franmontiel.persistentcookiejar.cache.SetCookieCache;
+import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersistor;
+
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
+
 import dev.niekirk.com.instagram4android.requests.InstagramLoginRequest;
 import dev.niekirk.com.instagram4android.requests.InstagramRequest;
-import dev.niekirk.com.instagram4android.requests.InstagramSyncFeaturesRequest;
-import dev.niekirk.com.instagram4android.requests.InstagramTimelineFeedRequest;
 import dev.niekirk.com.instagram4android.requests.internal.InstagramFetchHeadersRequest;
 import dev.niekirk.com.instagram4android.requests.payload.InstagramLoginPayload;
 import dev.niekirk.com.instagram4android.requests.payload.InstagramLoginResult;
 import dev.niekirk.com.instagram4android.requests.payload.InstagramSyncFeaturesPayload;
 import dev.niekirk.com.instagram4android.util.InstagramGenericUtil;
 import dev.niekirk.com.instagram4android.util.InstagramHashUtil;
-
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import okhttp3.Cookie;
-import okhttp3.CookieJar;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Response;
@@ -38,6 +32,8 @@ import okhttp3.Response;
  */
 
 public class Instagram4Android {
+
+    Context context;
 
     @Getter
     protected String deviceId;
@@ -68,11 +64,13 @@ public class Instagram4Android {
 
     private final Set<Cookie> cookieStore = new HashSet<>();
 
+    public ClearableCookieJar cookieJar;
+
     @Builder
-    public Instagram4Android(String username, String password) {
+    public Instagram4Android(Context context) {
         super();
-        this.username = username;
-        this.password = password;
+        this.context=context;
+        cookieJar =new PersistentCookieJar(new SetCookieCache(), new SharedPrefsCookiePersistor(context));
     }
 
     public void setup() {
@@ -88,8 +86,7 @@ public class Instagram4Android {
         this.deviceId = InstagramHashUtil.generateDeviceId(this.username, this.password);
         this.uuid = InstagramGenericUtil.generateUuid(true);
 
-        client = new OkHttpClient.Builder()
-                .cookieJar(new CookieJar() {
+/*new CookieJar() {
 
                     @Override
                     public void saveFromResponse(HttpUrl url, List<Cookie> cookies) {
@@ -114,7 +111,9 @@ public class Instagram4Android {
 
                         return validCookies;
                     }
-                })
+                }*/
+        client = new OkHttpClient.Builder()
+                .cookieJar(cookieJar)
                 .build();
 
     }
@@ -138,6 +137,7 @@ public class Instagram4Android {
             this.rankToken = this.userId + "_" + this.uuid;
             this.isLoggedIn = true;
 
+
             InstagramSyncFeaturesPayload syncFeatures = InstagramSyncFeaturesPayload.builder()
                     ._uuid(uuid)
                     ._csrftoken(getOrFetchCsrf(null))
@@ -146,11 +146,11 @@ public class Instagram4Android {
                     .experiments(InstagramConstants.DEVICE_EXPERIMENTS)
                     .build();
 
-            this.sendRequest(new InstagramSyncFeaturesRequest(syncFeatures));
-            this.sendRequest(new InstagramAutoCompleteUserListRequest());
+//            this.sendRequest(new InstagramSyncFeaturesRequest(syncFeatures));
+//            this.sendRequest(new InstagramAutoCompleteUserListRequest());
             //this.sendRequest(new InstagramTimelineFeedRequest());
-            this.sendRequest(new InstagramGetInboxRequest());
-            this.sendRequest(new InstagramGetRecentActivityRequest());
+//            this.sendRequest(new InstagramGetInboxRequest());
+//            this.sendRequest(new InstagramGetRecentActivityRequest());
         }
 
 

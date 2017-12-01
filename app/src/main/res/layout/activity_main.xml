@@ -37,7 +37,7 @@
 
         <ProgressBar
             android:id="@+id/feedProgressBar"
-            style="?android:attr/progressBarStyle"
+            style="?android:attr/progressBarStyleLarge"
             android:layout_width="70dp"
             android:layout_height="match_parent"
             android:layout_gravity="center"

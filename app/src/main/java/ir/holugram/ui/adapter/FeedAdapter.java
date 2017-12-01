@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -210,10 +211,11 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             ivFeedBottom.setText(feedItem.caption);
             txtUserName.setText(feedItem.userName);
             btnLike.setImageResource(feedItem.isLiked ? R.drawable.ic_heart_red : R.drawable.ic_heart_outline_grey);
-           /* tsLikesCounter.setCurrentText(vImageRoot.getResources().getQuantityString(
+            tsLikesCounter.setCurrentText(NumberFormat.getInstance().format(feedItem.likesCount)+" "+vImageRoot.getResources().getQuantityString(
                     R.plurals.likes_count, feedItem.likesCount, feedItem.likesCount
-            ));*/
-            tsLikesCounter.setCurrentText(feedItem.likesCount>1000?feedItem.likesCount/1000+"K":feedItem.likesCount+  "");
+            ));
+
+//            tsLikesCounter.setCurrentText(feedItem.likesCount>1000?feedItem.likesCount/1000+"K":feedItem.likesCount+  "");
         }
 
         public FeedItem getFeedItem() {

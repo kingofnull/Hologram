@@ -41,12 +41,13 @@ public class LoginActivity extends AppCompatActivity  {
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
+    private Instagram4Android instagram;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-
+        instagram=((HolugramApplication) LoginActivity.this.getApplication()).getInstagram();
         // Set up the login form.
         mUsernameView = findViewById(R.id.username);
 
@@ -210,9 +211,8 @@ public class LoginActivity extends AppCompatActivity  {
         protected Boolean doInBackground(Void... params) {
             // TODO: attempt authentication against a network service.
 
-
-
-            Instagram4Android instagram = Instagram4Android.builder().username(mUser).password(mPassword).build();
+            instagram.setUsername(mUser);
+            instagram.setPassword(mPassword);
             instagram.setup();
             try {
 
