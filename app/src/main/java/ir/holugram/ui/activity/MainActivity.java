@@ -2,6 +2,7 @@ package ir.holugram.ui.activity;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -18,6 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.OvershootInterpolator;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import java.util.List;
 
@@ -207,10 +209,6 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
         });
     }
 
-    public void loadNextDataFromApi(int offset) {
-
-    }
-
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
@@ -289,6 +287,13 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
         intent.putExtra(CommentsActivity.ARG_DRAWING_START_LOCATION, startingLocation[1]);
         startActivity(intent);
         overridePendingTransition(0, 0);
+    }
+
+    @Override
+    public void onFeedBottomClick(View v, int position) {
+        FeedAdapter.FeedItem item = feedAdapter.feedItems.get(position);
+        TextView tv = (TextView) v.findViewById(R.id.ivFeedBottom);
+        tv.setText(item.caption);
     }
 
     @Override

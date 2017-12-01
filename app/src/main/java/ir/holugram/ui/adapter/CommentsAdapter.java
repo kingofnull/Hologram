@@ -31,6 +31,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import dev.niekirk.com.instagram4android.requests.payload.InstagramComment;
 import ir.holugram.R;
+import ir.holugram.ui.activity.MainActivity;
 import ir.holugram.ui.utils.RoundedTransformation;
 
 
@@ -49,6 +50,8 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private boolean animationsLocked = false;
     private boolean delayEnterAnimation = true;
 
+    private OnCommentClickListener onCommentClickListener;
+
     public CommentsAdapter(Context context) {
         this.context = context;
         avatarSize = context.getResources().getDimensionPixelSize(R.dimen.comment_avatar_size);
@@ -58,8 +61,20 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         final View view = LayoutInflater.from(context).inflate(R.layout.item_comment, parent, false);
+        CommentViewHolder cellCommentViewHolder = new CommentViewHolder(view);
+        setupClickableViews(view, cellCommentViewHolder);
         return new CommentViewHolder(view);
     }
+
+    private void setupClickableViews(final View view, final CommentViewHolder cellFeedViewHolder) {
+        cellFeedViewHolder.ivUserAvatar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onCommentClickListener.onProfileClick(view);
+            }
+        });
+    }
+
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
@@ -186,4 +201,13 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             ButterKnife.bind(this, view);
         }
     }
+
+    public interface OnCommentClickListener {
+        void onCommentsClick(View v, int position);
+
+        void onMoreClick(View v, int position);
+
+        void onProfileClick(View v);
+    }
+
 }
