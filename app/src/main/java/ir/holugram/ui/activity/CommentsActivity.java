@@ -23,9 +23,12 @@ import android.widget.ProgressBar;
 import butterknife.BindView;
 import dev.niekirk.com.instagram4android.Instagram4Android;
 import dev.niekirk.com.instagram4android.InstagramConstants;
+import dev.niekirk.com.instagram4android.requests.InstagramGetMediaCommentsRequest;
 import dev.niekirk.com.instagram4android.requests.InstagramGetRequest;
+import dev.niekirk.com.instagram4android.requests.InstagramPostCommentRequest;
 import dev.niekirk.com.instagram4android.requests.payload.InstagramComment;
 import dev.niekirk.com.instagram4android.requests.payload.InstagramGetMediaCommentsResult;
+import dev.niekirk.com.instagram4android.requests.payload.InstagramPostCommentResult;
 import ir.holugram.HolugramApplication;
 import ir.holugram.R;
 import ir.holugram.Utils;
@@ -173,10 +176,12 @@ public class CommentsActivity extends BaseDrawerActivity implements SendCommentB
     @Override
     public void onSendClickListener(View v) {
         if (validateComment()) {
-            commentsAdapter.addItem();
+            //commentsAdapter.addItem();
+            String comment = etComment.getText().toString();
+            new Worker("Send").execute(new String[]{comment});
             commentsAdapter.setAnimationsLocked(false);
             commentsAdapter.setDelayEnterAnimation(false);
-            rvComments.smoothScrollBy(0, rvComments.getChildAt(0).getHeight() * commentsAdapter.getItemCount());
+            //rvComments.smoothScrollBy(0, rvComments.getChildAt(0).getHeight() * commentsAdapter.getItemCount());
 
             etComment.setText(null);
             btnSendComment.setCurrentState(SendCommentButton.STATE_DONE);
@@ -210,8 +215,10 @@ public class CommentsActivity extends BaseDrawerActivity implements SendCommentB
 
             switch (option) {
                 case "Comments":
-                    getComments(3);
+                    getComments();
                     break;
+                case "Send":
+                    sendComment(params[0]);
             }
 
             // TODO: register the new account here.
@@ -219,32 +226,24 @@ public class CommentsActivity extends BaseDrawerActivity implements SendCommentB
         }
 
 
-        // fetch user feed
-        public void getComments(int counter) {
+        // get post comments
+        public void getComments() {
             isLoading = true;
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    //progressBar.setVisibility(View.VISIBLE);
-                }
-            });
             try {
 
-                if(counter == 3){
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            progressBar.setVisibility(View.VISIBLE);
-                        }
-                    });
-                }
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        progressBar.setVisibility(View.VISIBLE);
+                    }
+                });
 
                 Log.i("Hologram", "Read User Comments");
 
                 InstagramGetMediaCommentsResult commentsResult = instagram.sendRequest(new InstagramGetMediaCommentsRequest(mediaId, maxCommentId));
                 Log.i("Hologram", "media id = " + mediaId);
                 for (InstagramComment item : commentsResult.getComments()) {
-                    Log.i("Hologram ->> comment", commentsAdapter.getItemCount()+"");
+                    Log.i("Hologram ->> comment", commentsAdapter.getItemCount() + "");
                     commentsAdapter.add(new CommentsAdapter.CommentItem(item));
                     runOnUiThread(new Runnable() {
                         @Override
@@ -269,9 +268,48 @@ public class CommentsActivity extends BaseDrawerActivity implements SendCommentB
                 }
                 Log.i("Hologram MaxId", maxCommentId + "");
 
-                if(counter > 0 && !isLastPage){
-                    this.getComments(counter - 1);
-                }
+
+            } catch (Exception e) {
+                Log.e("Hologram", Log.getStackTraceString(e));
+            }
+
+            isLoading = false;
+        }
+
+        // send user comment
+        public void sendComment(String comment) {
+            isLoading = true;
+
+            try {
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        progressBar.setVisibility(View.VISIBLE);
+                    }
+                });
+
+                Log.i("Hologram", "Send User Comment");
+
+                InstagramPostCommentResult commentsResult = instagram.sendRequest(new InstagramPostCommentRequest(mediaId, comment));
+                commentsAdapter.addFirstItem(new CommentsAdapter.CommentItem(commentsResult.getComment()));
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        commentsAdapter.notifyItemInserted(0);
+                        rvComments.smoothScrollToPosition(0);
+                    }
+                });
+
+                Thread.sleep(100);
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        progressBar.setVisibility(View.INVISIBLE);
+                    }
+                });
 
             } catch (Exception e) {
                 Log.e("Hologram", Log.getStackTraceString(e));
@@ -296,29 +334,4 @@ public class CommentsActivity extends BaseDrawerActivity implements SendCommentB
         }
     }
 
-    public class InstagramGetMediaCommentsRequest extends InstagramGetRequest<InstagramGetMediaCommentsResult> {
-
-        @NonNull
-        private String mediaId;
-        private String maxId;
-
-        public InstagramGetMediaCommentsRequest(long mediaId, String maxId) {
-            this.maxId = maxId;
-            this.mediaId = Long.toString(mediaId);
-        }
-
-        @Override
-        public String getUrl() {
-            String url = "media/" + mediaId + "/comments/?ig_sig_key_version=" + InstagramConstants.API_KEY_VERSION;
-            if (maxId != null && !maxId.isEmpty()) {
-                url += "&max_id=" + maxId;
-            }
-            return url;
-        }
-
-        @Override
-        public InstagramGetMediaCommentsResult parseResult(int resultCode, String content) {
-            return parseJson(resultCode, content, InstagramGetMediaCommentsResult.class);
-        }
-    }
 }

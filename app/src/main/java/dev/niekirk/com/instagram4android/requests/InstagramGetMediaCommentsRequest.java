@@ -15,6 +15,11 @@ public class InstagramGetMediaCommentsRequest extends InstagramGetRequest<Instag
     private String mediaId;
     private String maxId;
 
+    public InstagramGetMediaCommentsRequest(long mediaId, String maxId) {
+        this.maxId = maxId;
+        this.mediaId = Long.toString(mediaId);
+    }
+
     @Override
     public String getUrl() {
         String url = "media/" + mediaId + "/comments/?ig_sig_key_version=" + InstagramConstants.API_KEY_VERSION;
