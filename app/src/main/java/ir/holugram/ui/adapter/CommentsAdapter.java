@@ -3,6 +3,7 @@ package ir.holugram.ui.adapter;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
+import android.support.v7.widget.LinearLayoutCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -31,7 +32,9 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import dev.niekirk.com.instagram4android.requests.payload.InstagramComment;
 import ir.holugram.R;
+import ir.holugram.ui.activity.MainActivity;
 import ir.holugram.ui.utils.RoundedTransformation;
+import ir.holugram.ui.view.LoadingFeedItemView;
 
 
 /**
@@ -42,12 +45,17 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private Context context;
     private int lastAnimatedPosition = -1;
     private int avatarSize;
-    private  static long curTime = Calendar.getInstance(TimeZone.getTimeZone("UTC")).getTimeInMillis();
+
+    private static long curTime = Calendar.getInstance(TimeZone.getTimeZone("UTC")).getTimeInMillis();
+    public  static final int VIEW_TYPE_DEFAULT = 1;
+    public  static final int VIEW_TYPE_LOADER = 2;
 
     public final List<CommentItem> commentItems = new ArrayList<>();
 
     private boolean animationsLocked = false;
     private boolean delayEnterAnimation = true;
+
+    private OnCommentClickListener onCommentClickListener;
 
     public CommentsAdapter(Context context) {
         this.context = context;
@@ -57,9 +65,24 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        final View view = LayoutInflater.from(context).inflate(R.layout.item_comment, parent, false);
-        return new CommentViewHolder(view);
+
+        View view = LayoutInflater.from(context).inflate(R.layout.item_comment, parent, false);
+        CommentViewHolder cellFeedViewHolder = new CommentViewHolder(view);
+        setupClickableViews(view, cellFeedViewHolder);
+        return cellFeedViewHolder;
+
     }
+
+    private void setupClickableViews(final View view, final CommentViewHolder cellCommentViewHolder) {
+        cellCommentViewHolder.ivUserAvatar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.i("Hologram", "Position " + cellCommentViewHolder.getAdapterPosition());
+                onCommentClickListener.onProfileClick(view, cellCommentViewHolder.getAdapterPosition());
+            }
+        });
+    }
+
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
@@ -112,10 +135,6 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         notifyDataSetChanged();
     }
 
-    public void addItem() {
-        notifyItemInserted(getItemCount() - 1);
-    }
-
     public static class CommentItem {
 
         public String text;
@@ -135,27 +154,25 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
         private String calcTime(long time) {
 
-            long seconds = (curTime - time) / 1000;
+            long seconds = (curTime / 1000 - time);
             long minute = seconds / 60;
             long hour = minute / 60;
             long date = hour / 24;
             long month = date / 30;
             long year = month / 12;
 
-            String result = "";
+            String result = "چند لحظه پیش";
 
-            if (year > 1)
+            if (year > 0)
                 result = year + " سال پیش";
-            else if (month > 1)
+            else if (month > 0)
                 result = month + " ماه پیش";
-            else if (date > 1)
+            else if (date > 0)
                 result = date + " روز پیش";
-            else if (hour > 1)
+            else if (hour > 0)
                 result = hour + " ساعت پیش";
-            else if (minute > 1)
+            else if (minute > 0)
                 result = minute + " دقیقه پیش";
-            else if (seconds > 1)
-                result = "چند لحظه پیش";
 
             return result;
         }
@@ -167,6 +184,11 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         }
         return s;
     }
+
+    public void addFirstItem(CommentItem r) {
+        commentItems.add(0, r);
+    }
+
 
     public void setAnimationsLocked(boolean animationsLocked) {
         this.animationsLocked = animationsLocked;
@@ -187,4 +209,10 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             ButterKnife.bind(this, view);
         }
     }
+
+    public interface OnCommentClickListener {
+
+        void onProfileClick(View v, int itemPosition);
+    }
+
 }

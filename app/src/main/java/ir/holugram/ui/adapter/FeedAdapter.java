@@ -3,9 +3,12 @@ package ir.holugram.ui.adapter;
 import android.content.Context;
 import android.support.v7.widget.LinearLayoutCompat;
 import android.support.v7.widget.RecyclerView;
+import android.text.method.LinkMovementMethod;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -106,7 +109,13 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         cellFeedViewHolder.ivUserProfile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onFeedItemClickListener.onProfileClick(view);
+                onFeedItemClickListener.onProfileClick(view, cellFeedViewHolder.getAdapterPosition());
+            }
+        });
+        cellFeedViewHolder.ivFeedBottom.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onFeedItemClickListener.onFeedBottomClick(view, cellFeedViewHolder.getAdapterPosition());
             }
         });
     }
@@ -208,7 +217,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     .into(ivUserProfile);
 
             //ivFeedCenter.setImageResource(adapterPosition % 2 == 0 ? R.drawable.img_feed_center_1 : R.drawable.img_feed_center_2);
-            ivFeedBottom.setText(feedItem.caption);
+            ivFeedBottom.setText(makeShort(feedItem.caption));
             txtUserName.setText(feedItem.userName);
             btnLike.setImageResource(feedItem.isLiked ? R.drawable.ic_heart_red : R.drawable.ic_heart_outline_grey);
             tsLikesCounter.setCurrentText(NumberFormat.getInstance().format(feedItem.likesCount)+" "+vImageRoot.getResources().getQuantityString(
@@ -220,6 +229,13 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         public FeedItem getFeedItem() {
             return feedItem;
+        }
+
+        public String makeShort(String text) {
+            if (text.length() > 50 ) {
+                text = text.substring(0,50) + " بیشتر...";
+            }
+            return text;
         }
     }
 
@@ -245,6 +261,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         public long itemId;
         public String caption;
         public String userName;
+        public long userId;
         public String picProfile;
 
         public FeedItem(InstagramFeedItem item) {
@@ -255,15 +272,18 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             this.itemId = item.getPk();
             this.userName = item.getUser().getUsername();
             this.picProfile = item.getUser().getProfile_pic_url();
+            this.userId = item.getUser().getPk();
         }
     }
 
     public interface OnFeedItemClickListener {
         void onCommentsClick(View v, int position);
 
+        void onFeedBottomClick(View v, int position);
+
         void onMoreClick(View v, int position);
 
-        void onProfileClick(View v);
+        void onProfileClick(View v, int position);
     }
 
     public boolean add(FeedItem r) {

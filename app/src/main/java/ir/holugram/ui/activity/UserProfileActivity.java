@@ -26,6 +26,7 @@ import ir.holugram.ui.utils.CircleTransformation;
  */
 public class UserProfileActivity extends BaseDrawerActivity implements RevealBackgroundView.OnStateChangeListener {
     public static final String ARG_REVEAL_START_LOCATION = "reveal_start_location";
+    public static final String USER_ID = "current_user_id";
 
     private static final int USER_OPTIONS_ANIMATION_DELAY = 300;
     private static final Interpolator INTERPOLATOR = new DecelerateInterpolator();
@@ -52,11 +53,14 @@ public class UserProfileActivity extends BaseDrawerActivity implements RevealBac
     private int avatarSize;
     private String profilePhoto;
     private UserProfileAdapter userPhotosAdapter;
+    private long userId;
 
-    public static void startUserProfileFromLocation(int[] startingLocation, Activity startingActivity) {
+    public static void startUserProfileFromLocation(int[] startingLocation, Activity startingActivity, long userId) {
         Intent intent = new Intent(startingActivity, UserProfileActivity.class);
         intent.putExtra(ARG_REVEAL_START_LOCATION, startingLocation);
+        intent.putExtra(USER_ID, userId);
         startingActivity.startActivity(intent);
+
     }
 
     @Override
@@ -100,6 +104,7 @@ public class UserProfileActivity extends BaseDrawerActivity implements RevealBac
 
     private void setupRevealBackground(Bundle savedInstanceState) {
         vRevealBackground.setOnStateChangeListener(this);
+        userId = getIntent().getLongExtra(USER_ID, 0);
         if (savedInstanceState == null) {
             final int[] startingLocation = getIntent().getIntArrayExtra(ARG_REVEAL_START_LOCATION);
             vRevealBackground.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
