@@ -216,6 +216,19 @@ public class CommentsActivity extends BaseDrawerActivity implements SendCommentB
                 Log.i("Hologram", "Read User Comments");
 
                 InstagramGetMediaCommentsResult commentsResult = instagram.sendRequest(new InstagramGetMediaCommentsRequest(mediaId, maxCommentId));
+
+                if(commentsResult.getComments() == null){
+                    isLastPage = true;
+                    isLoading = false;
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            progressBar.setVisibility(View.INVISIBLE);
+                        }
+                    });
+                    return;
+                }
+
                 Log.i("Hologram", "media id = " + mediaId);
                 for (InstagramComment item : commentsResult.getComments()) {
                     Log.i("Hologram ->> comment", commentsAdapter.getItemCount() + "");

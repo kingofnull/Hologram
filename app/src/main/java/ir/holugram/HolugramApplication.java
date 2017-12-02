@@ -9,16 +9,23 @@ import com.squareup.picasso.Picasso;
 
 import dev.niekirk.com.instagram4android.Instagram4Android;
 import ir.holugram.ui.utils.OkHttpDownloaderDiskCacheFirst;
-import lombok.Getter;
-import lombok.Setter;
+
 
 /**
  * Created by froger_mcs on 05.11.14.
  */
 public class HolugramApplication extends Application {
 
-    @Getter @Setter
+
     private Instagram4Android instagram;
+
+    public Instagram4Android getInstagram() {
+        return instagram;
+    }
+
+    public void setInstagram(Instagram4Android instagram) {
+        this.instagram = instagram;
+    }
 
 
     @Override
@@ -30,7 +37,7 @@ public class HolugramApplication extends Application {
 //        picasso.setLoggingEnabled(true);
 //        Picasso.setSingletonInstance(picasso);
 
-        instagram=new Instagram4Android(this);
+        instagram = new Instagram4Android(this);
 
         OkHttpClient okHttpClient = new OkHttpClient();
 
