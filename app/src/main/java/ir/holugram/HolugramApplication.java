@@ -11,7 +11,6 @@ import dev.niekirk.com.instagram4android.Instagram4Android;
 import ir.holugram.ui.utils.OkHttpDownloaderDiskCacheFirst;
 import lombok.Getter;
 import lombok.Setter;
-import timber.log.Timber;
 
 /**
  * Created by froger_mcs on 05.11.14.
@@ -49,7 +48,7 @@ public class HolugramApplication extends Application {
         Picasso.setSingletonInstance(built);
 
         super.onCreate();
-        Timber.plant(new Timber.DebugTree());
+//        Timber.plant(new Timber.DebugTree());
 
 
     }
