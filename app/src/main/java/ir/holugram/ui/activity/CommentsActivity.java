@@ -210,6 +210,8 @@ public class CommentsActivity extends BaseDrawerActivity implements SendCommentB
                     @Override
                     public void run() {
                         progressBar.setVisibility(View.VISIBLE);
+                        commentsAdapter.setAnimationsLocked(false);
+                        commentsAdapter.setDelayEnterAnimation(false);
                     }
                 });
 
@@ -217,7 +219,7 @@ public class CommentsActivity extends BaseDrawerActivity implements SendCommentB
 
                 InstagramGetMediaCommentsResult commentsResult = instagram.sendRequest(new InstagramGetMediaCommentsRequest(mediaId, maxCommentId));
 
-                if(commentsResult.getComments() == null){
+                if (commentsResult.getComments() == null) {
                     isLastPage = true;
                     isLoading = false;
                     runOnUiThread(new Runnable() {
@@ -233,14 +235,17 @@ public class CommentsActivity extends BaseDrawerActivity implements SendCommentB
                 for (InstagramComment item : commentsResult.getComments()) {
                     Log.i("Hologram ->> comment", commentsAdapter.getItemCount() + "");
                     commentsAdapter.add(new CommentsAdapter.CommentItem(item));
+
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
+                            commentsAdapter.setAnimationsLocked(false);
+                            commentsAdapter.setDelayEnterAnimation(false);
                             commentsAdapter.notifyItemInserted(commentsAdapter.commentItems.size() - 1);
                         }
                     });
 
-                    Thread.sleep(100);
+                    Thread.sleep(200);
                 }
 
                 runOnUiThread(new Runnable() {
