@@ -82,16 +82,8 @@ public class CommentsActivity extends BaseDrawerActivity implements SendCommentB
         drawingStartLocation = getIntent().getIntExtra(ARG_DRAWING_START_LOCATION, 0);
         mediaId = getIntent().getLongExtra(MEDIA_ID, 0);
         if (savedInstanceState == null) {
-            contentRoot.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
-                @Override
-                public boolean onPreDraw() {
-                    contentRoot.getViewTreeObserver().removeOnPreDrawListener(this);
-                    startIntroAnimation();
-                    return true;
-                }
-            });
+            new Worker("Comments").execute((String) null);
         }
-
 
     }
 
@@ -104,14 +96,6 @@ public class CommentsActivity extends BaseDrawerActivity implements SendCommentB
         rvComments.setAdapter(commentsAdapter);
 
         rvComments.setOverScrollMode(View.OVER_SCROLL_NEVER);
-       /* rvComments.setOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                if (newState == RecyclerView.SCROLL_STATE_DRAGGING) {
-                    commentsAdapter.setAnimationsLocked(true);
-                }
-            }
-        });*/
 
         EndlessRecyclerViewScrollListener scrollListener = new EndlessRecyclerViewScrollListener(linearLayoutManager) {
             @Override
@@ -127,26 +111,6 @@ public class CommentsActivity extends BaseDrawerActivity implements SendCommentB
 
     private void setupSendCommentButton() {
         btnSendComment.setOnSendClickListener(this);
-    }
-
-    private void startIntroAnimation() {
-        ViewCompat.setElevation(getToolbar(), 0);
-        contentRoot.setScaleY(0.1f);
-        contentRoot.setPivotY(drawingStartLocation);
-        llAddComment.setTranslationY(200);
-
-        contentRoot.animate()
-                .scaleY(1)
-                .setDuration(200)
-                .setInterpolator(new AccelerateInterpolator())
-                .setListener(new AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        ViewCompat.setElevation(getToolbar(), Utils.dpToPx(8));
-                        new Worker("Comments").execute((String) null);
-                    }
-                })
-                .start();
     }
 
     private void animateContent() {

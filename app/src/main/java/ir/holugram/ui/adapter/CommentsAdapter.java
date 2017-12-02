@@ -32,7 +32,9 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import dev.niekirk.com.instagram4android.requests.payload.InstagramComment;
 import ir.holugram.R;
+import ir.holugram.ui.activity.CommentsActivity;
 import ir.holugram.ui.activity.MainActivity;
+import ir.holugram.ui.activity.UserProfileActivity;
 import ir.holugram.ui.utils.RoundedTransformation;
 import ir.holugram.ui.view.LoadingFeedItemView;
 
@@ -47,8 +49,8 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private int avatarSize;
 
     private static long curTime = Calendar.getInstance(TimeZone.getTimeZone("UTC")).getTimeInMillis();
-    public  static final int VIEW_TYPE_DEFAULT = 1;
-    public  static final int VIEW_TYPE_LOADER = 2;
+    public static final int VIEW_TYPE_DEFAULT = 1;
+    public static final int VIEW_TYPE_LOADER = 2;
 
     public final List<CommentItem> commentItems = new ArrayList<>();
 
@@ -77,12 +79,27 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         cellCommentViewHolder.ivUserAvatar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.i("Hologram", "Position " + cellCommentViewHolder.getAdapterPosition());
-                onCommentClickListener.onProfileClick(view, cellCommentViewHolder.getAdapterPosition());
+                int position =  cellCommentViewHolder.getAdapterPosition();
+                CommentsAdapter.CommentItem item = commentItems.get(position);
+                int[] startingLocation = new int[2];
+                v.getLocationOnScreen(startingLocation);
+                startingLocation[0] += v.getWidth() / 2;
+                long userId = item.userId;
+                UserProfileActivity.startUserProfileFromLocation(startingLocation, (CommentsActivity)context, userId);
+
+
             }
         });
     }
 
+    @Override
+    public int getItemViewType(int position) {
+        if (position == 0) {
+            return VIEW_TYPE_LOADER;
+        } else {
+            return VIEW_TYPE_DEFAULT;
+        }
+    }
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
