@@ -41,8 +41,8 @@ public abstract class InstagramPostRequest<T> extends InstagramRequest<T> {
         int resultCode = response.code();
         String content = response.body().string();
 
-        Log.d("GET_Request", request.toString());
-        Log.d("GET_Response", content);
+        Log.d("POST_Request", request.toString());
+        Log.d("POST_Response", content);
 
         return parseResult(resultCode, content);
     }
