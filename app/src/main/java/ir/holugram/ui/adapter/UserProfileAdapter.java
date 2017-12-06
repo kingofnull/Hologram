@@ -14,11 +14,12 @@ import android.widget.ImageView;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.ButterKnife;
 import butterknife.BindView;
+import butterknife.ButterKnife;
+import dev.niekirk.com.instagram4android.requests.payload.InstagramFeedItem;
 import ir.holugram.R;
 import ir.holugram.Utils;
 
@@ -34,7 +35,8 @@ public class UserProfileAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     private final Context context;
     private final int cellSize;
 
-    private final List<String> photos;
+    public List<FeedItem> feedItems = new ArrayList<>();
+    ;
 
     private boolean lockedAnimations = false;
     private int lastAnimatedItem = -1;
@@ -42,7 +44,6 @@ public class UserProfileAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     public UserProfileAdapter(Context context) {
         this.context = context;
         this.cellSize = Utils.getScreenWidth(context) / 3;
-        this.photos = Arrays.asList(context.getResources().getStringArray(R.array.user_photos));
     }
 
     @Override
@@ -62,8 +63,9 @@ public class UserProfileAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     }
 
     private void bindPhoto(final PhotoViewHolder holder, int position) {
+        FeedItem item = feedItems.get(position);
         Picasso.with(context)
-                .load(photos.get(position))
+                .load(item.imgUrl)
                 .resize(cellSize, cellSize)
                 .centerCrop()
                 .into(holder.ivPhoto, new Callback() {
@@ -103,7 +105,26 @@ public class UserProfileAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     @Override
     public int getItemCount() {
-        return photos.size();
+        return feedItems.size();
+    }
+
+    public void setLockedAnimations(boolean lockedAnimations) {
+        this.lockedAnimations = lockedAnimations;
+    }
+
+    public boolean add(FeedItem r) {
+        boolean s = feedItems.add(r);
+        return s;
+    }
+
+    public interface OnFeedItemClickListener {
+        void onCommentsClick(View v, int position);
+
+        void onFeedBottomClick(View v, int position);
+
+        void onMoreClick(View v, int position);
+
+        void onProfileClick(View v, int position);
     }
 
     static class PhotoViewHolder extends RecyclerView.ViewHolder {
@@ -118,7 +139,27 @@ public class UserProfileAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         }
     }
 
-    public void setLockedAnimations(boolean lockedAnimations) {
-        this.lockedAnimations = lockedAnimations;
+    public static class FeedItem {
+        public int likesCount;
+        public boolean isLiked;
+        public String imgUrl;
+        public long itemId;
+        public String caption;
+        public String userName;
+        public long userId;
+        public String picProfile;
+
+        public FeedItem(InstagramFeedItem item) {
+            this.likesCount = item.getLike_count();
+            this.isLiked = item.isHas_liked();
+            this.imgUrl = item.getImage_versions2().getCandidates().get(0).getUrl();
+            this.caption = item.getCaption() != null ? (String) item.getCaption().get("text") : "";
+            this.itemId = item.getPk();
+            this.userName = item.getUser().getUsername();
+            this.picProfile = item.getUser().getProfile_pic_url();
+            this.userId = item.getUser().getPk();
+        }
     }
+
+
 }

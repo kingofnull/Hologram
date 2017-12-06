@@ -5,15 +5,12 @@ import android.animation.AnimatorListenerAdapter;
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewTreeObserver;
-import android.view.animation.AccelerateInterpolator;
 import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.EditText;
@@ -22,9 +19,7 @@ import android.widget.ProgressBar;
 
 import butterknife.BindView;
 import dev.niekirk.com.instagram4android.Instagram4Android;
-import dev.niekirk.com.instagram4android.InstagramConstants;
 import dev.niekirk.com.instagram4android.requests.InstagramGetMediaCommentsRequest;
-import dev.niekirk.com.instagram4android.requests.InstagramGetRequest;
 import dev.niekirk.com.instagram4android.requests.InstagramPostCommentRequest;
 import dev.niekirk.com.instagram4android.requests.payload.InstagramComment;
 import dev.niekirk.com.instagram4android.requests.payload.InstagramGetMediaCommentsResult;
@@ -33,7 +28,6 @@ import ir.holugram.HolugramApplication;
 import ir.holugram.R;
 import ir.holugram.Utils;
 import ir.holugram.ui.adapter.CommentsAdapter;
-import ir.holugram.ui.adapter.FeedAdapter;
 import ir.holugram.ui.utils.EndlessRecyclerViewScrollListener;
 import ir.holugram.ui.view.SendCommentButton;
 
@@ -43,7 +37,7 @@ import ir.holugram.ui.view.SendCommentButton;
 public class CommentsActivity extends BaseDrawerActivity implements SendCommentButton.OnSendClickListener, CommentsAdapter.OnCommentClickListener {
     public static final String ARG_DRAWING_START_LOCATION = "arg_drawing_start_location";
     public static final String MEDIA_ID = "arg_media_id";
-
+    public Instagram4Android instagram;
     @BindView(R.id.contentRoot)
     LinearLayout contentRoot;
     @BindView(R.id.rvComments)
@@ -56,18 +50,13 @@ public class CommentsActivity extends BaseDrawerActivity implements SendCommentB
     SendCommentButton btnSendComment;
     @BindView(R.id.commentProgressBar)
     ProgressBar progressBar;
-
+    boolean isLoading = false;
+    boolean isLastPage = false;
     private CommentsAdapter commentsAdapter;
     private int drawingStartLocation;
     private long mediaId;
-
-    boolean isLoading = false;
-    boolean isLastPage = false;
-
     private String maxCommentId = null;
     private ProgressDialog pd;
-
-    public Instagram4Android instagram;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -245,7 +234,7 @@ public class CommentsActivity extends BaseDrawerActivity implements SendCommentB
                         }
                     });
 
-                    Thread.sleep(200);
+                    Thread.sleep(100);
                 }
 
                 runOnUiThread(new Runnable() {
