@@ -14,39 +14,6 @@ android {
 
 
 
-/*
-
-    flavorDimensions "stage", "mode"
-
-    productFlavors {
-        dev {
-            dimension "stage"
-            minSdkVersion 19
-            versionNameSuffix "-dev"
-            applicationIdSuffix '.dev'
-            resConfigs "en", "xxhdpi"
-            ext.enableCrashlytics = f alse
-            ext.alwaysUpdateBuildId = false
-        }
-
-        prod {
-            dimension "stage"
-            minSdkVersion 19
-
-        }
-
-        demo {
-            dimension "mode"
-
-        }
-
-        full {
-            dimension "mode"
-        }
-    }
-*/
-
-
 }
 
 dependencies {
@@ -67,8 +34,7 @@ dependencies {
     compile 'com.squareup.okhttp3:okhttp:3.8.1'
     compile 'com.jakewharton.picasso:picasso2-okhttp3-downloader:1.0.2'
     compile 'com.commonsware.cwac:camera:0.7.+'
-
-     implementation project(':instagram4android')
+    implementation project(':instagram4android')
 }
 
 
