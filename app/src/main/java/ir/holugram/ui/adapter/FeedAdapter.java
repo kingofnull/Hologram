@@ -3,12 +3,9 @@ package ir.holugram.ui.adapter;
 import android.content.Context;
 import android.support.v7.widget.LinearLayoutCompat;
 import android.support.v7.widget.RecyclerView;
-import android.text.method.LinkMovementMethod;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -88,10 +85,11 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             @Override
             public void onClick(View v) {
                 int adapterPosition = cellFeedViewHolder.getAdapterPosition();
-                feedItems.get(adapterPosition).likesCount++;
+                FeedItem feedItem= feedItems.get(adapterPosition);
+                feedItem.likesCount++;
                 notifyItemChanged(adapterPosition, ACTION_LIKE_IMAGE_CLICKED);
                 if (context instanceof MainActivity) {
-                    ((MainActivity) context).showLikedSnackbar();
+                    ((MainActivity) context).showLikedSnackbar(feedItem);
                 }
             }
         });
@@ -99,10 +97,11 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             @Override
             public void onClick(View v) {
                 int adapterPosition = cellFeedViewHolder.getAdapterPosition();
-                feedItems.get(adapterPosition).likesCount++;
+                FeedItem feedItem= feedItems.get(adapterPosition);
+                feedItem.likesCount++;
                 notifyItemChanged(adapterPosition, ACTION_LIKE_BUTTON_CLICKED);
                 if (context instanceof MainActivity) {
-                    ((MainActivity) context).showLikedSnackbar();
+                    ((MainActivity) context).showLikedSnackbar(feedItem);
                 }
             }
         });
@@ -263,16 +262,18 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         public String userName;
         public long userId;
         public String picProfile;
+//        public InstagramFeedItem feedData;
 
-        public FeedItem(InstagramFeedItem item) {
-            this.likesCount = item.getLike_count();
-            this.isLiked = item.isHas_liked();
-            this.imgUrl = item.getImage_versions2().getCandidates().get(0).getUrl();
-            this.caption = item.getCaption() != null ? (String) item.getCaption().get("text") : "";
-            this.itemId = item.getPk();
-            this.userName = item.getUser().getUsername();
-            this.picProfile = item.getUser().getProfile_pic_url();
-            this.userId = item.getUser().getPk();
+        public FeedItem(InstagramFeedItem feedData) {
+            this.likesCount = feedData.getLike_count();
+            this.isLiked = feedData.isHas_liked();
+            this.imgUrl = feedData.getImage_versions2().getCandidates().get(0).getUrl();
+            this.caption = feedData.getCaption() != null ? (String) feedData.getCaption().get("text") : "";
+            this.itemId = feedData.getPk();
+            this.userName = feedData.getUser().getUsername();
+            this.picProfile = feedData.getUser().getProfile_pic_url();
+            this.userId = feedData.getUser().getPk();
+//            this.feedData=feedData;
         }
     }
 

@@ -1,2 +1,1 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.testcase.android.instagram4android" />
+<manifest package="com.testcase.android.instagram4android" />

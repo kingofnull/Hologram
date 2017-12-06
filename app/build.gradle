@@ -14,39 +14,6 @@ android {
 
 
 
-/*
-
-    flavorDimensions "stage", "mode"
-
-    productFlavors {
-        dev {
-            dimension "stage"
-            minSdkVersion 19
-            versionNameSuffix "-dev"
-            applicationIdSuffix '.dev'
-            resConfigs "en", "xxhdpi"
-            ext.enableCrashlytics = f alse
-            ext.alwaysUpdateBuildId = false
-        }
-
-        prod {
-            dimension "stage"
-            minSdkVersion 19
-
-        }
-
-        demo {
-            dimension "mode"
-
-        }
-
-        full {
-            dimension "mode"
-        }
-    }
-*/
-
-
 }
 
 dependencies {

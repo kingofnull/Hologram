@@ -2,7 +2,7 @@ package ir.holugram.ui.activity;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.animation.ObjectAnimator;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -21,15 +21,13 @@ import android.view.animation.OvershootInterpolator;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import java.util.List;
+import java.io.IOException;
 
 import butterknife.BindView;
 import butterknife.OnClick;
 import dev.niekirk.com.instagram4android.Instagram4Android;
+import dev.niekirk.com.instagram4android.requests.InstagramLikeRequest;
 import dev.niekirk.com.instagram4android.requests.InstagramTimelineFeedRequest;
-import dev.niekirk.com.instagram4android.requests.InstagramUserFeedRequest;
-import dev.niekirk.com.instagram4android.requests.payload.InstagramFeedItem;
-import dev.niekirk.com.instagram4android.requests.payload.InstagramFeedResult;
 import dev.niekirk.com.instagram4android.requests.payload.InstagramTimelineFeedItem;
 import dev.niekirk.com.instagram4android.requests.payload.InstagramTimelineFeedResult;
 import ir.holugram.HolugramApplication;
@@ -74,7 +72,7 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
     private Bundle savedInstanceState;
 
     private String mFeedsMaxId = null;
-    LinearLayoutManager linearLayoutManager;
+//    LinearLayoutManager linearLayoutManager;
 
     boolean isLoading = false;
     boolean isLastPage = false;
@@ -89,6 +87,8 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
             finish();
             return;
         }
+
+        mFeedsMaxId=null;
 
         this.savedInstanceState = savedInstanceState;
 
@@ -137,6 +137,7 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
 
     }
 
+    @SuppressLint("StaticFieldLeak")
     private void setupFeed() {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this) {
             @Override
@@ -151,27 +152,21 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
         feedAdapter.setOnFeedItemClickListener(this);
         rvFeed.setAdapter(feedAdapter);
 
-        new Worker("UserFeed") {
+        new UserFeedTask() {
             @Override
-            protected void onPostExecute(Boolean success) {
-                super.onPostExecute(success);
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-//                        progressBar.getLayoutParams().height=ViewGroup.LayoutParams.WRAP_CONTENT;
-                        rvFeed.setVisibility(View.VISIBLE);
-
-                    }
-                });
+            protected void onPostExecute(Boolean aBoolean) {
+                super.onPostExecute(aBoolean);
+//                progressBar.getLayoutParams().height=ViewGroup.LayoutParams.WRAP_CONTENT;
+                rvFeed.setVisibility(View.VISIBLE);
             }
-        }.execute((String) null);
+        }.execute();
 
 
         scrollListener = new EndlessRecyclerViewScrollListener(linearLayoutManager) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
                 if (!isLastPage && !isLoading) {
-                    new Worker("UserFeed").execute((String) null);
+                    new UserFeedTask().execute();
                 }
             }
         };
@@ -180,6 +175,7 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
         rvFeed.setItemAnimator(new FeedItemAnimator());
 
         feedsSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @SuppressLint("StaticFieldLeak")
             @Override
             public void onRefresh() {
                 scrollListener.resetState();
@@ -192,19 +188,15 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
                         progressBar.setVisibility(View.GONE);
                     }
                 });
-                new Worker("UserFeed") {
+                mFeedsMaxId=null;
+                new UserFeedTask() {
                     @Override
-                    protected void onPostExecute(Boolean success) {
-                        super.onPostExecute(success);
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                feedsSwipeRefreshLayout.setRefreshing(false);
-                                isRefresh = false;
-                            }
-                        });
+                    protected void onPostExecute(Boolean aBoolean) {
+                        super.onPostExecute(aBoolean);
+                        feedsSwipeRefreshLayout.setRefreshing(false);
+                        isRefresh = false;
                     }
-                }.execute((String) null);
+                }.execute();
             }
         });
     }
@@ -341,56 +333,54 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
         overridePendingTransition(0, 0);
     }
 
-    public void showLikedSnackbar() {
+    public void showLikedSnackbar(final FeedAdapter.FeedItem feedItem) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                InstagramLikeRequest request=new InstagramLikeRequest(feedItem.itemId);
+                try {
+                    instagram.sendRequest(request);
+                } catch (IOException e) {
+                    Log.e("Hologram",Log.getStackTraceString(e));
+                }
+
+            }
+        }).start();
         Snackbar.make(clContent, "Liked!", Snackbar.LENGTH_SHORT).show();
     }
 
-    public class Worker extends AsyncTask<String, Void, Boolean> {
 
-        private final String option;
 
-        Worker(String option) {
-            this.option = option;
-        }
 
-        // return current main instance
-        public MainActivity getMain() {
-            return MainActivity.this;
-        }
+
+    public class UserFeedTask extends AsyncTask<Void, Void, Boolean> {
 
         @Override
-        protected Boolean doInBackground(String... params) {
-
-            switch (option) {
-                case "UserFeed":
-                    isLoading = true;
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (!isRefresh) {
-                                progressBar.setVisibility(View.VISIBLE);
-                            }
-                        }
-                    });
-
-                    getUserFeed();
-
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            progressBar.setVisibility(View.GONE);
-                        }
-                    });
-
-                    getUserFeed();
-                    isLoading = false;
-
-                    break;
-            }
+        protected Boolean doInBackground(Void... prams) {
+            getUserFeed();
 
             // TODO: register the new account here.
             return true;
         }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            isLoading = true;
+
+            if (!isRefresh) {
+                progressBar.setVisibility(View.VISIBLE);
+            }
+
+        }
+
+        @Override
+        protected void onPostExecute(Boolean aBoolean) {
+            super.onPostExecute(aBoolean);
+            progressBar.setVisibility(View.GONE);
+            isLoading = false;
+        }
+
 
 
         // fetch user feed
@@ -398,9 +388,27 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
 
             try {
                 Log.i("Hologram", "Read User Feeds");
-
-                InstagramFeedResult result = instagram.sendRequest(new InstagramUserFeedRequest(instagram.getUserId(), null, 0L));
+                /*
+                InstagramUserFeedRequest request=new InstagramUserFeedRequest(instagram.getUserId(), mFeedsMaxId, (System.currentTimeMillis()/1000)-86400*7);
+                InstagramFeedResult result = instagram.sendRequest(request);
                 List<InstagramFeedItem> items = result.getItems();
+                Log.i("Hologram","Fetched Count: "+items.size());
+                for (InstagramFeedItem item : items) {
+                Log.i("Hologram", "Add Feeds" + item.getImage_versions2().getCandidates().get(0).getUrl());
+                    feedAdapter.add(new FeedAdapter.FeedItem(item));
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            feedAdapter.notifyItemInserted(feedAdapter.feedItems.size() - 1);
+                        }
+                    });
+
+
+                    Thread.sleep(100);
+
+                }
+                mFeedsMaxId = result.getNext_max_id();
+                */
 
                 InstagramTimelineFeedResult feedResult = instagram.sendRequest(new InstagramTimelineFeedRequest(mFeedsMaxId, null));
                 Log.i("Hologram", "User feeds loaded!");
@@ -424,9 +432,10 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
 
                     }
                 }
-
-
                 mFeedsMaxId = feedResult.getNext_max_id();
+
+
+
                 if (mFeedsMaxId == null) {
                     isLastPage = true;
                 }
@@ -441,5 +450,11 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
 
     }
 
+    public class LikePostTask extends AsyncTask<FeedAdapter.FeedItem,Void,Void>{
+        @Override
+        protected Void doInBackground(FeedAdapter.FeedItem... feedItems) {
+            return null;
+        }
+    }
 
 }
