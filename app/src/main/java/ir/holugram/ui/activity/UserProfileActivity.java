@@ -296,7 +296,7 @@ public class UserProfileActivity extends BaseDrawerActivity implements RevealBac
                     }
                 });
 
-                Log.i("Hologram", "Read User Comments");
+                Log.i("Hologram", "Read User Feeds");
 
                 InstagramFeedResult result = instagram.sendRequest(new InstagramUserFeedRequest(userId, maxFeedId, 0L));
                 List<InstagramFeedItem> items = result.getItems();
