@@ -173,7 +173,7 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
         scrollListener = new EndlessRecyclerViewScrollListener(linearLayoutManager) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-                if (!isLastPage && !isLoading) {
+                if (!isLastPage) {
                     new UserFeedTask().execute();
                 }
             }
