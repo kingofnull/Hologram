@@ -20,6 +20,9 @@ import android.view.ViewGroup;
 import android.view.animation.OvershootInterpolator;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.fasterxml.jackson.databind.JsonMappingException;
 
 import java.io.IOException;
 
@@ -429,36 +432,49 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
                 */
 
                 feedAdapter.showLoading(true);
-                InstagramTimelineFeedResult feedResult = instagram.sendRequest(new InstagramTimelineFeedRequest(mFeedsMaxId, null));
-                feedAdapter.showLoading(false);
-                Log.i("Hologram", "User feeds loaded!");
-                for (InstagramTimelineFeedItem item : feedResult.getFeed_items()) {
-                    if (item.getMedia_or_ad() == null || item.getMedia_or_ad().getImage_versions2() == null ||
-                            item.getMedia_or_ad().getImage_versions2().getCandidates() == null) {
-                        Log.i("Hologram", "Add Feeds Skip");
-                    } else {
-                        Log.i("Hologram", "Add Feeds" + item.getMedia_or_ad().getImage_versions2().getCandidates().get(0).getUrl());
-                        feedAdapter.add(new FeedAdapter.FeedItem(item.getMedia_or_ad()));
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                feedAdapter.notifyItemInserted(feedAdapter.feedItems.size() - 1);
-                            }
-                        });
+                try {
+                    InstagramTimelineFeedResult feedResult = instagram.sendRequest(new InstagramTimelineFeedRequest(mFeedsMaxId, null));
+                    feedAdapter.showLoading(false);
+                    Log.i("Hologram", "User feeds loaded!");
+                    for (InstagramTimelineFeedItem item : feedResult.getFeed_items()) {
+                        if (item.getMedia_or_ad() == null || item.getMedia_or_ad().getImage_versions2() == null ||
+                                item.getMedia_or_ad().getImage_versions2().getCandidates() == null) {
+                            Log.i("Hologram", "Add Feeds Skip");
+                        } else {
+                            Log.i("Hologram", "Add Feeds" + item.getMedia_or_ad().getImage_versions2().getCandidates().get(0).getUrl());
+                            feedAdapter.add(new FeedAdapter.FeedItem(item.getMedia_or_ad()));
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    feedAdapter.notifyItemInserted(feedAdapter.feedItems.size() - 1);
+                                }
+                            });
 
 
-                        Thread.sleep(100);
+                            Thread.sleep(100);
 
 
+                        }
                     }
-                }
-                mFeedsMaxId = feedResult.getNext_max_id();
+                    mFeedsMaxId = feedResult.getNext_max_id();
 
 
-                if (mFeedsMaxId == null) {
-                    isLastPage = true;
+                    if (mFeedsMaxId == null) {
+                        isLastPage = true;
+                    }
+                    Log.i("Hologram MaxId", mFeedsMaxId + "");
+
+
+                }catch (JsonMappingException e){
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            //(String)
+                            Toast.makeText(getApplication(),getResources().getString(R.string.network_error),Toast.LENGTH_LONG).show();
+                        }
+                    });
                 }
-                Log.i("Hologram MaxId", mFeedsMaxId + "");
+
 
             } catch (Exception e) {
                 Log.e("Hologram", Log.getStackTraceString(e));
