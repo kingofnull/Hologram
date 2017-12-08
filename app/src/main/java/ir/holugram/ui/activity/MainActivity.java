@@ -88,8 +88,6 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
             return;
         }
 
-        mFeedsMaxId = null;
-
         this.savedInstanceState = savedInstanceState;
 
         this.instagram = ((HolugramApplication) this.getApplication()).getInstagram();
@@ -117,7 +115,7 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
         progressBar.getLayoutParams().height = ViewGroup.LayoutParams.MATCH_PARENT;
     }
 
-    private void resetLoad(){
+    private void resetLoad() {
         isLoading = false;
         isLastPage = false;
         isRefresh = false;
@@ -377,8 +375,12 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
 
             if (!isRefresh) {
 //                progressBar.setVisibility(View.VISIBLE);
+                rvFeed.post(new Runnable() {
+                    public void run() {
+                        feedAdapter.notifyDataSetChanged();
+                    }
+                });
 
-                feedAdapter.notifyDataSetChanged();
 
             }
 
@@ -389,7 +391,11 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
             super.onPostExecute(aBoolean);
 //            progressBar.setVisibility(View.GONE);
 
-            feedAdapter.notifyDataSetChanged();
+            rvFeed.post(new Runnable() {
+                public void run() {
+                    feedAdapter.notifyDataSetChanged();
+                }
+            });
 
             isLoading = false;
         }
