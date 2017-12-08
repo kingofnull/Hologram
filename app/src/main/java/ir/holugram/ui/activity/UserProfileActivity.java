@@ -36,6 +36,7 @@ import ir.holugram.ui.utils.CircleTransformation;
 import ir.holugram.ui.utils.EndlessRecyclerViewScrollListener;
 import ir.holugram.ui.view.RevealBackgroundView;
 
+
 /**
  * Created by Miroslaw Stanek on 14.01.15.
  */

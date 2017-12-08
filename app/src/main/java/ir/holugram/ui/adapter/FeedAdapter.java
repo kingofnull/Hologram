@@ -1,7 +1,6 @@
 package ir.holugram.ui.adapter;
 
 import android.content.Context;
-import android.support.v7.widget.LinearLayoutCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,6 +36,11 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public  static final int VIEW_TYPE_DEFAULT = 1;
     public  static final int VIEW_TYPE_LOADER = 2;
 
+    protected boolean showLoader;
+
+//    private static final int VIEWTYPE_ITEM = 1;
+//    private static final int VIEWTYPE_LOADER = 2;
+
     public final List<FeedItem> feedItems = new ArrayList<>();
 
     private  Context context;
@@ -44,28 +48,38 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private boolean showLoadingView = false;
 
+//    protected LayoutInflater mInflater;
 
     public FeedAdapter(Context context) {
+//        mInflater = LayoutInflater.from(context);
         this.context = context;
     }
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        if (viewType == VIEW_TYPE_DEFAULT) {
+        if (viewType == VIEW_TYPE_LOADER) {
+
+            // Your Loader XML view here
+            View view = LayoutInflater.from(context).inflate(R.layout.loader_item_layout, parent, false);
+
+            // Your LoaderViewHolder class
+            return new LoaderViewHolder(view);
+        }
+        else if(viewType == VIEW_TYPE_DEFAULT) {
             View view = LayoutInflater.from(context).inflate(R.layout.item_feed, parent, false);
             CellFeedViewHolder cellFeedViewHolder = new CellFeedViewHolder(view);
             setupClickableViews(view, cellFeedViewHolder);
             return cellFeedViewHolder;
-        } else if (viewType == VIEW_TYPE_LOADER) {
+        }/* else if (viewType == VIEW_TYPE_LOADER) {
             LoadingFeedItemView view = new LoadingFeedItemView(context);
             view.setLayoutParams(new LinearLayoutCompat.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT)
             );
             return new LoadingCellFeedViewHolder(view);
-        }
+        }*/
 
-        return null;
+        throw new IllegalArgumentException("Invalid ViewType: " + viewType);
     }
 
     private void setupClickableViews(final View view, final CellFeedViewHolder cellFeedViewHolder) {
@@ -121,12 +135,40 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
+        // Loader ViewHolder
+        // Loader ViewHolder
+        if (viewHolder instanceof LoaderViewHolder) {
+            LoaderViewHolder loaderViewHolder = (LoaderViewHolder)viewHolder;
+            if (showLoader) {
+                loaderViewHolder.mProgressBar.setVisibility(View.VISIBLE);
+            } else {
+                loaderViewHolder.mProgressBar.setVisibility(View.GONE);
+            }
+
+            return;
+        }
+
         ((CellFeedViewHolder) viewHolder).bindView(feedItems.get(position));
 
-        if (getItemViewType(position) == VIEW_TYPE_LOADER) {
+        /*if (getItemViewType(position) == VIEW_TYPE_LOADER) {
             bindLoadingFeedItem((LoadingCellFeedViewHolder) viewHolder);
-        }
+        }*/
     }
+
+    @Override
+    public long getItemId(int position) {
+
+        // loader can't be at position 0
+        // loader can only be at the last position
+        if (showLoader) {
+
+            // id of loader is considered as -1 here
+            return -1;
+        }
+        return getItemId(position);
+    }
+
+
 
     private void bindLoadingFeedItem(final LoadingCellFeedViewHolder holder) {
         holder.loadingFeedItemView.setOnLoadingFinishedListener(new LoadingFeedItemView.OnLoadingFinishedListener() {
@@ -141,16 +183,31 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @Override
     public int getItemViewType(int position) {
-        if (showLoadingView && position == 0) {
+
+
+        // loader can't be at position 0
+        // loader can only be at the last position
+        if (position != 0 && position == getItemCount() - 1) {
             return VIEW_TYPE_LOADER;
-        } else {
-            return VIEW_TYPE_DEFAULT;
         }
+
+        return VIEW_TYPE_DEFAULT;
+    }
+
+    public void showLoading(boolean status) {
+        showLoader = status;
     }
 
     @Override
     public int getItemCount() {
-        return feedItems.size();
+
+        // If no items are present, there's no need for loader
+        if (feedItems == null || feedItems.size() == 0) {
+            return 0;
+        }
+
+        // +1 for loader
+        return feedItems.size() + 1;
     }
 
     public void updateItems(boolean animated) {

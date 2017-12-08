@@ -88,7 +88,7 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
             return;
         }
 
-        mFeedsMaxId=null;
+        mFeedsMaxId = null;
 
         this.savedInstanceState = savedInstanceState;
 
@@ -115,6 +115,13 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
 
         Log.i("Hologram", "after launch!");
         progressBar.getLayoutParams().height = ViewGroup.LayoutParams.MATCH_PARENT;
+    }
+
+    private void resetLoad(){
+        isLoading = false;
+        isLastPage = false;
+        isRefresh = false;
+        mFeedsMaxId = null;
     }
 
     @Override
@@ -152,12 +159,15 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
         feedAdapter.setOnFeedItemClickListener(this);
         rvFeed.setAdapter(feedAdapter);
 
+        resetLoad();
+        progressBar.setVisibility(View.VISIBLE);
         new UserFeedTask() {
             @Override
             protected void onPostExecute(Boolean aBoolean) {
                 super.onPostExecute(aBoolean);
 //                progressBar.getLayoutParams().height=ViewGroup.LayoutParams.WRAP_CONTENT;
-                rvFeed.setVisibility(View.VISIBLE);
+//                rvFeed.setVisibility(View.VISIBLE);
+                progressBar.setVisibility(View.GONE);
             }
         }.execute();
 
@@ -188,7 +198,7 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
                         progressBar.setVisibility(View.GONE);
                     }
                 });
-                mFeedsMaxId=null;
+                resetLoad();
                 new UserFeedTask() {
                     @Override
                     protected void onPostExecute(Boolean aBoolean) {
@@ -337,20 +347,17 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
         new Thread(new Runnable() {
             @Override
             public void run() {
-                InstagramLikeRequest request=new InstagramLikeRequest(feedItem.itemId);
+                InstagramLikeRequest request = new InstagramLikeRequest(feedItem.itemId);
                 try {
                     instagram.sendRequest(request);
                 } catch (IOException e) {
-                    Log.e("Hologram",Log.getStackTraceString(e));
+                    Log.e("Hologram", Log.getStackTraceString(e));
                 }
 
             }
         }).start();
         Snackbar.make(clContent, "Liked!", Snackbar.LENGTH_SHORT).show();
     }
-
-
-
 
 
     public class UserFeedTask extends AsyncTask<Void, Void, Boolean> {
@@ -369,7 +376,10 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
             isLoading = true;
 
             if (!isRefresh) {
-                progressBar.setVisibility(View.VISIBLE);
+//                progressBar.setVisibility(View.VISIBLE);
+
+                feedAdapter.notifyDataSetChanged();
+
             }
 
         }
@@ -377,10 +387,12 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
         @Override
         protected void onPostExecute(Boolean aBoolean) {
             super.onPostExecute(aBoolean);
-            progressBar.setVisibility(View.GONE);
+//            progressBar.setVisibility(View.GONE);
+
+            feedAdapter.notifyDataSetChanged();
+
             isLoading = false;
         }
-
 
 
         // fetch user feed
@@ -410,7 +422,9 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
                 mFeedsMaxId = result.getNext_max_id();
                 */
 
+                feedAdapter.showLoading(true);
                 InstagramTimelineFeedResult feedResult = instagram.sendRequest(new InstagramTimelineFeedRequest(mFeedsMaxId, null));
+                feedAdapter.showLoading(false);
                 Log.i("Hologram", "User feeds loaded!");
                 for (InstagramTimelineFeedItem item : feedResult.getFeed_items()) {
                     if (item.getMedia_or_ad() == null || item.getMedia_or_ad().getImage_versions2() == null ||
@@ -435,7 +449,6 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
                 mFeedsMaxId = feedResult.getNext_max_id();
 
 
-
                 if (mFeedsMaxId == null) {
                     isLastPage = true;
                 }
@@ -450,7 +463,7 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
 
     }
 
-    public class LikePostTask extends AsyncTask<FeedAdapter.FeedItem,Void,Void>{
+    public class LikePostTask extends AsyncTask<FeedAdapter.FeedItem, Void, Void> {
         @Override
         protected Void doInBackground(FeedAdapter.FeedItem... feedItems) {
             return null;
