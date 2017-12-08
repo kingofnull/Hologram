@@ -317,6 +317,11 @@ public class UserProfileActivity extends BaseDrawerActivity implements RevealBac
 
                 for (InstagramFeedItem item : result.getItems()) {
                     Log.i("Hologram ->> user photo", userPhotosAdapter.getItemCount() + "");
+
+                    // skip null photos
+                    if (item.getImage_versions2() == null)
+                        continue;
+
                     userPhotosAdapter.add(new UserProfileAdapter.FeedItem(item));
 
                     runOnUiThread(new Runnable() {
