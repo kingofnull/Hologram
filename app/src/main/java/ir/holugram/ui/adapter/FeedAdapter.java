@@ -11,7 +11,8 @@ import android.widget.ImageView;
 import android.widget.TextSwitcher;
 import android.widget.TextView;
 
-import com.squareup.picasso.Picasso;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.signature.ObjectKey;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -20,21 +21,21 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import dev.niekirk.com.instagram4android.requests.payload.InstagramFeedItem;
+import dev.niekirk.com.instagram4android.requests.payload.InstagramVideoVersions;
 import ir.holugram.R;
 import ir.holugram.ui.activity.MainActivity;
-import ir.holugram.ui.utils.CircleTransformation;
+import ir.holugram.ui.utils.GlideApp;
 import ir.holugram.ui.view.LoadingFeedItemView;
-
 
 
 /**
  * Created by froger_mcs on 05.11.14.
  */
 public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    public  static final String ACTION_LIKE_BUTTON_CLICKED = "action_like_button_button";
-    public  static final String ACTION_LIKE_IMAGE_CLICKED = "action_like_image_button";
-    public  static final int VIEW_TYPE_DEFAULT = 1;
-    public  static final int VIEW_TYPE_LOADER = 2;
+    public static final String ACTION_LIKE_BUTTON_CLICKED = "action_like_button_button";
+    public static final String ACTION_LIKE_IMAGE_CLICKED = "action_like_image_button";
+    public static final int VIEW_TYPE_DEFAULT = 1;
+    public static final int VIEW_TYPE_LOADER = 2;
 
     protected boolean showLoader;
 
@@ -43,7 +44,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     public final List<FeedItem> feedItems = new ArrayList<>();
 
-    private  Context context;
+    private Context context;
     private OnFeedItemClickListener onFeedItemClickListener;
 
     private boolean showLoadingView = false;
@@ -64,8 +65,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
             // Your LoaderViewHolder class
             return new LoaderViewHolder(view);
-        }
-        else if(viewType == VIEW_TYPE_DEFAULT) {
+        } else if (viewType == VIEW_TYPE_DEFAULT) {
             View view = LayoutInflater.from(context).inflate(R.layout.item_feed, parent, false);
             CellFeedViewHolder cellFeedViewHolder = new CellFeedViewHolder(view);
             setupClickableViews(view, cellFeedViewHolder);
@@ -99,7 +99,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             @Override
             public void onClick(View v) {
                 int adapterPosition = cellFeedViewHolder.getAdapterPosition();
-                FeedItem feedItem= feedItems.get(adapterPosition);
+                FeedItem feedItem = feedItems.get(adapterPosition);
                 feedItem.likesCount++;
                 notifyItemChanged(adapterPosition, ACTION_LIKE_IMAGE_CLICKED);
                 if (context instanceof MainActivity) {
@@ -111,7 +111,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             @Override
             public void onClick(View v) {
                 int adapterPosition = cellFeedViewHolder.getAdapterPosition();
-                FeedItem feedItem= feedItems.get(adapterPosition);
+                FeedItem feedItem = feedItems.get(adapterPosition);
                 feedItem.likesCount++;
                 notifyItemChanged(adapterPosition, ACTION_LIKE_BUTTON_CLICKED);
                 if (context instanceof MainActivity) {
@@ -138,12 +138,14 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         // Loader ViewHolder
         // Loader ViewHolder
         if (viewHolder instanceof LoaderViewHolder) {
-            LoaderViewHolder loaderViewHolder = (LoaderViewHolder)viewHolder;
+            LoaderViewHolder loaderViewHolder = (LoaderViewHolder) viewHolder;
             if (showLoader) {
                 loaderViewHolder.mProgressBar.setVisibility(View.VISIBLE);
             } else {
                 loaderViewHolder.mProgressBar.setVisibility(View.GONE);
             }
+
+
 
             return;
         }
@@ -160,14 +162,13 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         // loader can't be at position 0
         // loader can only be at the last position
-        if (showLoader) {
+        if (position != 0 && position == getItemCount() - 1) {
 
             // id of loader is considered as -1 here
             return -1;
         }
         return getItemId(position);
     }
-
 
 
     private void bindLoadingFeedItem(final LoadingCellFeedViewHolder holder) {
@@ -223,7 +224,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         notifyItemChanged(0);
     }
 
-    public  class CellFeedViewHolder extends RecyclerView.ViewHolder {
+    public class CellFeedViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.ivFeedCenter)
         ImageView ivFeedCenter;
         @BindView(R.id.ivFeedBottom)
@@ -261,26 +262,54 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             // show The Image in a ImageView
             //new DownloadImageTask(ivFeedCenter).execute(feedItem.imgUrl);
 
-            Picasso.with(context)
+          /*  Picasso.with(context)
                     .load(feedItem.imgUrl)
                     .placeholder(R.drawable.loader_circle)
                     .noFade()
                     //.networkPolicy(NetworkPolicy.OFFLINE)
-                    .into(ivFeedCenter);
+                    .into(ivFeedCenter);*/
 
-            Picasso.with(context)
+            //To clean image view and prevent undesired repeat
+            ivFeedCenter.setImageDrawable(null);
 
-                    .load(feedItem.picProfile)
+            String url = feedItem.imgUrl;
+            if (feedItem.feedData.media_type == 2) {
+                InstagramVideoVersions video = feedItem.feedData.video_versions.get(feedItem.feedData.video_versions.size() - 1);
+                String videoUrl = video.getUrl();
 
-                    //.networkPolicy(NetworkPolicy.OFFLINE)
-                    .transform(new CircleTransformation())
-                    .into(ivUserProfile);
+
+            } else {
+                /*Picasso.with(context)
+                        .load(feedItem.imgUrl)
+                        .placeholder(R.drawable.loader_circle)
+                        .noFade()
+                        //.networkPolicy(NetworkPolicy.OFFLINE)
+                        .into(ivFeedCenter);*/
+                /*Picasso.with(context)
+
+                        .load(feedItem.picProfile)
+
+                        //.networkPolicy(NetworkPolicy.OFFLINE)
+                        .transform(new CircleTransformation())
+                        .into(ivUserProfile);*/
+
+                GlideApp.with(context)
+                        .load(url)
+
+//                        .set(DiskCache<DiskCache>,)
+                        .placeholder(R.drawable.loader_circle)
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .signature(new ObjectKey(feedItem.feedData.getPk()))
+                        .into(ivFeedCenter);
+            }
+
+
 
             //ivFeedCenter.setImageResource(adapterPosition % 2 == 0 ? R.drawable.img_feed_center_1 : R.drawable.img_feed_center_2);
             ivFeedBottom.setText(makeShort(feedItem.caption));
             txtUserName.setText(feedItem.userName);
             btnLike.setImageResource(feedItem.isLiked ? R.drawable.ic_heart_red : R.drawable.ic_heart_outline_grey);
-            tsLikesCounter.setCurrentText(NumberFormat.getInstance().format(feedItem.likesCount)+" "+vImageRoot.getResources().getQuantityString(
+            tsLikesCounter.setCurrentText(NumberFormat.getInstance().format(feedItem.likesCount) + " " + vImageRoot.getResources().getQuantityString(
                     R.plurals.likes_count, feedItem.likesCount, feedItem.likesCount
             ));
 
@@ -292,14 +321,14 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
 
         public String makeShort(String text) {
-            if (text.length() > 50 ) {
-                text = text.substring(0,50) + " بیشتر...";
+            if (text.length() > 50) {
+                text = text.substring(0, 50) + " بیشتر...";
             }
             return text;
         }
     }
 
-    public  class LoadingCellFeedViewHolder extends CellFeedViewHolder {
+    public class LoadingCellFeedViewHolder extends CellFeedViewHolder {
 
         LoadingFeedItemView loadingFeedItemView;
 
@@ -323,7 +352,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         public String userName;
         public long userId;
         public String picProfile;
-//        public InstagramFeedItem feedData;
+        public InstagramFeedItem feedData;
 
         public FeedItem(InstagramFeedItem feedData) {
             this.likesCount = feedData.getLike_count();
@@ -334,7 +363,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             this.userName = feedData.getUser().getUsername();
             this.picProfile = feedData.getUser().getProfile_pic_url();
             this.userId = feedData.getUser().getPk();
-//            this.feedData=feedData;
+            this.feedData = feedData;
         }
     }
 

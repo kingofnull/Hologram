@@ -407,7 +407,6 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
         // fetch user feed
         public void getUserFeed() {
 
-            try {
                 Log.i("Hologram", "Read User Feeds");
                 /*
                 InstagramUserFeedRequest request=new InstagramUserFeedRequest(instagram.getUserId(), mFeedsMaxId, (System.currentTimeMillis()/1000)-86400*7);
@@ -465,18 +464,16 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
                     Log.i("Hologram MaxId", mFeedsMaxId + "");
 
 
-                }catch (JsonMappingException e){
+                }catch (final JsonMappingException e1){
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             //(String)
-                            Toast.makeText(getApplication(),getResources().getString(R.string.network_error),Toast.LENGTH_LONG).show();
+                            Toast.makeText(getApplication(),getString(R.string.network_error),Toast.LENGTH_SHORT).show();
+                            Log.e("Hologram ", Log.getStackTraceString(e1));
                         }
                     });
-                }
-
-
-            } catch (Exception e) {
+                } catch (Exception e) {
                 Log.e("Hologram", Log.getStackTraceString(e));
             }
 

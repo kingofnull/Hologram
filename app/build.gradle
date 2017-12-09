@@ -34,8 +34,12 @@ dependencies {
     compile 'com.squareup.okhttp3:okhttp:3.8.1'
     compile 'com.jakewharton.picasso:picasso2-okhttp3-downloader:1.0.2'
     compile 'com.commonsware.cwac:camera:0.7.0'
+
+    compile 'com.github.bumptech.glide:glide:4.4.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.4.0'
     //    implementation project(':instagram4android')
-    implementation project(':instagram4android')
+    compile project(':instagram4android')
+
 }
 
 
