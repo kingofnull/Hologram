@@ -37,6 +37,9 @@ dependencies {
 
     compile 'com.github.bumptech.glide:glide:4.4.0'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.4.0'
+
+    compile 'com.linsea:universalvideoview:1.1.0@aar'
+
     //    implementation project(':instagram4android')
     compile project(':instagram4android')
 
