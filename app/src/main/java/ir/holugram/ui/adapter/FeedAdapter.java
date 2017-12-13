@@ -288,6 +288,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
             String imageUrl = feedItem.imgUrl;
 
+
                 /*Picasso.with(context)
                         .load(feedItem.imgUrl)
                         .placeholder(R.drawable.loader_circle)
