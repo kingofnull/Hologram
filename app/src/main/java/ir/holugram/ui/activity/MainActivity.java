@@ -33,6 +33,7 @@ import dev.niekirk.com.instagram4android.requests.InstagramLikeRequest;
 import dev.niekirk.com.instagram4android.requests.InstagramTimelineFeedRequest;
 import dev.niekirk.com.instagram4android.requests.payload.InstagramTimelineFeedItem;
 import dev.niekirk.com.instagram4android.requests.payload.InstagramTimelineFeedResult;
+import dev.niekirk.com.instagram4android.requests.payload.InstagramVideoVersions;
 import ir.holugram.HolugramApplication;
 import ir.holugram.R;
 import ir.holugram.Utils;
@@ -83,6 +84,10 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+
+
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -487,6 +492,22 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
         protected Void doInBackground(FeedAdapter.FeedItem... feedItems) {
             return null;
         }
+    }
+
+    @Override
+    public void onVideoClick(View v, int position) {
+        FeedAdapter.FeedItem feedItem = feedAdapter.feedItems.get(position);
+        InstagramVideoVersions video = feedItem.feedData.video_versions.get(feedItem.feedData.video_versions.size() - 1);
+        String videoUrl = video.getUrl();
+        Log.i("VideoUrl",videoUrl);
+        showVideo(videoUrl);
+    }
+
+    public void showVideo(String Url){
+        Intent videoIntent = new Intent(this, VideoPlayerActivity.class);
+//        videoIntent.putExtra("url", "http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4");
+        videoIntent.putExtra("url", Url);
+        startActivity(videoIntent);
     }
 
 }

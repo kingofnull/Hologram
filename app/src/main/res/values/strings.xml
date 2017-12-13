@@ -22,4 +22,5 @@
         completions."
     </string>
     <string name="network_error">خطای ارتباط با سرور!</string>
+    <string name="title_activity_video_player">VideoPlayerActivity</string>
 </resources>

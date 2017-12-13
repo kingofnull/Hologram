@@ -8,7 +8,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <uses-feature
         android:name="android.hardware.camera"
@@ -26,13 +26,13 @@
     <uses-permission android:name="android.permission.READ_CONTACTS" />
 
     <application
-        android:name="ir.holugram.HolugramApplication"
+        android:name=".HolugramApplication"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme"
         tools:replace="android:icon">
         <activity
-            android:name="ir.holugram.ui.activity.MainActivity"
+            android:name=".ui.activity.MainActivity"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -41,25 +41,30 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="ir.holugram.ui.activity.CommentsActivity"
+            android:name=".ui.activity.CommentsActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.TransparentActivity" />
         <activity
-            android:name="ir.holugram.ui.activity.UserProfileActivity"
+            android:name=".ui.activity.UserProfileActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.TransparentActivity" />
         <activity
-            android:name="ir.holugram.ui.activity.TakePhotoActivity"
+            android:name=".ui.activity.TakePhotoActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.TransparentActivity" />
         <activity
-            android:name="ir.holugram.ui.activity.PublishActivity"
+            android:name=".ui.activity.PublishActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme"
             android:windowSoftInputMode="stateHidden" />
         <activity
-            android:name="ir.holugram.ui.activity.LoginActivity"
-            android:label="@string/title_activity_login"></activity>
+            android:name=".ui.activity.LoginActivity"
+            android:label="@string/title_activity_login" />
+        <activity
+            android:name=".ui.activity.VideoPlayerActivity"
+            android:label="@string/title_activity_video_player"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
+            android:theme="@style/AppTheme"></activity>
     </application>
 
 </manifest>

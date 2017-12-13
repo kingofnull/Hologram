@@ -64,6 +64,14 @@
                 android:scaleType="center"
                 android:src="@drawable/ic_heart_outline_white"
                 android:visibility="invisible" />
+             <ImageView
+                android:id="@+id/playBtn"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="center"
+                android:src="@drawable/btn_play"
+                android:visibility="invisible" />
+
 
         </ir.holugram.ui.view.SquaredFrameLayout>
 

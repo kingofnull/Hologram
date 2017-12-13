@@ -3,13 +3,7 @@ package ir.holugram;
 
 import android.app.Application;
 
-import com.squareup.okhttp.Cache;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.picasso.OkHttpDownloader;
-import com.squareup.picasso.Picasso;
-
 import dev.niekirk.com.instagram4android.Instagram4Android;
-import ir.holugram.ui.utils.OkHttpDownloaderDiskCacheFirst;
 
 /**
  * Created by froger_mcs on 05.11.14.
@@ -38,7 +32,7 @@ public class HolugramApplication extends Application {
 //        Picasso.setSingletonInstance(picasso);
 
         instagram = new Instagram4Android(this);
-
+/*
         OkHttpClient okHttpClient = new OkHttpClient();
 
         okHttpClient.setCache(new Cache(getCacheDir(), 100 * 1024 * 1024)); //100 MB cache, use Integer.MAX_VALUE if it is too low
@@ -53,6 +47,7 @@ public class HolugramApplication extends Application {
         Picasso built = builder.build();
 
         Picasso.setSingletonInstance(built);
+*/
 
         super.onCreate();
 //        Timber.plant(new Timber.DebugTree());

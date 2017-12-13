@@ -21,7 +21,6 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import dev.niekirk.com.instagram4android.requests.payload.InstagramFeedItem;
-import dev.niekirk.com.instagram4android.requests.payload.InstagramVideoVersions;
 import ir.holugram.R;
 import ir.holugram.ui.activity.MainActivity;
 import ir.holugram.ui.utils.GlideApp;
@@ -131,6 +130,15 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 onFeedItemClickListener.onFeedBottomClick(view, cellFeedViewHolder.getAdapterPosition());
             }
         });
+
+        cellFeedViewHolder.playBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onFeedItemClickListener.onVideoClick(view, cellFeedViewHolder.getAdapterPosition());
+            }
+        });
+
+
     }
 
     @Override
@@ -241,6 +249,11 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         View vBgLike;
         @BindView(R.id.ivLike)
         ImageView ivLike;
+
+        @BindView(R.id.playBtn)
+        ImageView playBtn;
+
+
         @BindView(R.id.tsLikesCounter)
         TextSwitcher tsLikesCounter;
         @BindView(R.id.ivUserProfile)
@@ -271,14 +284,10 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
             //To clean image view and prevent undesired repeat
             ivFeedCenter.setImageDrawable(null);
+            playBtn.setVisibility(View.GONE);
 
-            String url = feedItem.imgUrl;
-            if (feedItem.feedData.media_type == 2) {
-                InstagramVideoVersions video = feedItem.feedData.video_versions.get(feedItem.feedData.video_versions.size() - 1);
-                String videoUrl = video.getUrl();
+            String imageUrl = feedItem.imgUrl;
 
-
-            } else {
                 /*Picasso.with(context)
                         .load(feedItem.imgUrl)
                         .placeholder(R.drawable.loader_circle)
@@ -294,13 +303,16 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         .into(ivUserProfile);*/
 
                 GlideApp.with(context)
-                        .load(url)
+                        .load(imageUrl)
 
 //                        .set(DiskCache<DiskCache>,)
                         .placeholder(R.drawable.loader_circle)
                         .diskCacheStrategy(DiskCacheStrategy.ALL)
                         .signature(new ObjectKey(feedItem.feedData.getPk()))
                         .into(ivFeedCenter);
+
+            if (feedItem.feedData.media_type == 2) {
+                playBtn.setVisibility(View.VISIBLE);
             }
 
 
@@ -375,6 +387,8 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         void onMoreClick(View v, int position);
 
         void onProfileClick(View v, int position);
+
+        void onVideoClick(View v, int position);
     }
 
     public boolean add(FeedItem r) {
