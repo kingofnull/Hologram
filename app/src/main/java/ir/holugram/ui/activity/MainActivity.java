@@ -3,9 +3,14 @@ package ir.holugram.ui.activity;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.app.DownloadManager;
+import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
@@ -188,6 +193,7 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
         };
 
         rvFeed.addOnScrollListener(scrollListener);
+        rvFeed.addOnScrollListener(FeedContextMenuManager.getInstance());
         rvFeed.setItemAnimator(new FeedItemAnimator());
 
         feedsSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -318,6 +324,27 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
         long userId = item.userId;
         UserProfileActivity.startUserProfileFromLocation(startingLocation, this, userId);
         overridePendingTransition(0, 0);
+    }
+
+    @Override
+    public void onDownloadClick(int pos) {
+        FeedAdapter.FeedItem f=feedAdapter.feedItems.get(pos);
+       String url=null;
+       String fileName=null;
+
+        if(f.feedData.getMedia_type()==1){
+            url=f.feedData.getImage_versions2().getCandidates().get(0).getUrl();
+//            fileName=f.feedData.getCaption()+".jpg";
+            fileName=f.itemId+".jpg";
+        }else if(f.feedData.getMedia_type()==2){
+            url = f.feedData.video_versions.get(0).getUrl();
+//            fileName=f.feedData.getCaption()+".mp4";
+            fileName=f.itemId+".mp4";
+        }
+
+        if(url!=null){
+            downloadFromUrl(url,fileName);
+        }
     }
 
     @Override
@@ -508,6 +535,30 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
 //        videoIntent.putExtra("url", "http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4");
         videoIntent.putExtra("url", Url);
         startActivity(videoIntent);
+    }
+
+    public void downloadFromUrl(String url, String fileName) {
+        Log.e("DOWNLOAD-TRY",url);
+        Log.e("DOWNLOAD-TRY",fileName);
+
+        url = url.replace(" ","%20");
+        DownloadManager downloadManager = (DownloadManager) ((Activity) this).getSystemService(Context.DOWNLOAD_SERVICE);
+
+        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
+        request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI | DownloadManager.Request.NETWORK_MOBILE)
+                .setAllowedOverRoaming(false)
+                .setTitle("Demo")
+                .setDescription("Downloading via Your app name..")
+                .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+                .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
+        downloadManager.enqueue(request);
+//        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(DownloadUrl));
+//        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
+//        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED); // to notify when download is complete
+//        request.allowScanningByMediaScanner();// if you want to be available from media players
+//        DownloadManager manager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+//        manager.enqueue(request);
+
     }
 
 }

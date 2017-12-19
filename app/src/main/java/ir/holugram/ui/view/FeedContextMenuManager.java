@@ -34,13 +34,13 @@ public class FeedContextMenuManager extends RecyclerView.OnScrollListener implem
 
     }
 
-public void toggleContextMenuFromView(View openingView, int feedItem, FeedContextMenu.OnFeedContextMenuItemClickListener listener) {
-    if (contextMenuView == null) {
-        showContextMenuFromView(openingView, feedItem, listener);
-    } else {
-        hideContextMenu();
+    public void toggleContextMenuFromView(View openingView, int feedItem, FeedContextMenu.OnFeedContextMenuItemClickListener listener) {
+        if (contextMenuView == null) {
+            showContextMenuFromView(openingView, feedItem, listener);
+        } else {
+            hideContextMenu();
+        }
     }
-}
 
     private void showContextMenuFromView(final View openingView, int feedItem, FeedContextMenu.OnFeedContextMenuItemClickListener listener) {
         if (!isContextMenuShowing) {

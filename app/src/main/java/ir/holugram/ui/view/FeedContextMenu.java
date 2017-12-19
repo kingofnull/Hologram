@@ -46,6 +46,13 @@ public class FeedContextMenu extends LinearLayout {
         ((ViewGroup) getParent()).removeView(FeedContextMenu.this);
     }
 
+    @OnClick(R.id.btnDownload)
+    public void onDownloadClick() {
+        if (onItemClickListener != null) {
+            onItemClickListener.onDownloadClick(feedItem);
+        }
+    }
+
     @OnClick(R.id.btnReport)
     public void onReportClick() {
         if (onItemClickListener != null) {
@@ -86,5 +93,7 @@ public class FeedContextMenu extends LinearLayout {
         public void onCopyShareUrlClick(int feedItem);
 
         public void onCancelClick(int feedItem);
+
+        public void onDownloadClick(int feedItem);
     }
 }
