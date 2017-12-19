@@ -12,6 +12,7 @@ import android.widget.TextSwitcher;
 import android.widget.TextView;
 
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.signature.ObjectKey;
 
 import java.text.NumberFormat;
@@ -24,6 +25,7 @@ import dev.niekirk.com.instagram4android.requests.payload.InstagramFeedItem;
 import ir.holugram.R;
 import ir.holugram.ui.activity.MainActivity;
 import ir.holugram.ui.utils.GlideApp;
+import ir.holugram.ui.utils.GlideRequest;
 import ir.holugram.ui.view.LoadingFeedItemView;
 
 
@@ -154,7 +156,6 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             }
 
 
-
             return;
         }
 
@@ -272,6 +273,11 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             this.feedItem = feedItem;
             int adapterPosition = getAdapterPosition();
 
+            GlideApp.with(context)
+                    .load(feedItem.picProfile)
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .apply(RequestOptions.circleCropTransform())
+                    .into(ivUserProfile);
             // show The Image in a ImageView
             //new DownloadImageTask(ivFeedCenter).execute(feedItem.imgUrl);
 
@@ -288,7 +294,6 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
             String imageUrl = feedItem.imgUrl;
 
-
                 /*Picasso.with(context)
                         .load(feedItem.imgUrl)
                         .placeholder(R.drawable.loader_circle)
@@ -303,19 +308,19 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         .transform(new CircleTransformation())
                         .into(ivUserProfile);*/
 
-                GlideApp.with(context)
-                        .load(imageUrl)
+            GlideRequest gR = GlideApp.with(context).load(imageUrl);
+//                        .set(DiskCache<DiskCache>,);
 
-//                        .set(DiskCache<DiskCache>,)
-                        .placeholder(R.drawable.loader_circle)
-                        .diskCacheStrategy(DiskCacheStrategy.ALL)
-                        .signature(new ObjectKey(feedItem.feedData.getPk()))
-                        .into(ivFeedCenter);
 
             if (feedItem.feedData.media_type == 2) {
                 playBtn.setVisibility(View.VISIBLE);
+                gR = gR.placeholder(R.drawable.loader_circle);
             }
 
+            gR
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .signature(new ObjectKey(feedItem.feedData.getPk()))
+                    .into(ivFeedCenter);
 
 
             //ivFeedCenter.setImageResource(adapterPosition % 2 == 0 ? R.drawable.img_feed_center_1 : R.drawable.img_feed_center_2);
@@ -394,8 +399,6 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     public boolean add(FeedItem r) {
         boolean s = feedItems.add(r);
-        if (s) {
-        }
         return s;
     }
 }
