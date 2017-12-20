@@ -233,6 +233,8 @@ public class CommentsActivity extends BaseDrawerActivity implements SendCommentB
                             commentsAdapter.notifyItemInserted(commentsAdapter.commentItems.size() - 1);
                         }
                     });
+
+                    Thread.sleep(100);
                 }
 
                 runOnUiThread(new Runnable() {

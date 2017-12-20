@@ -23,7 +23,9 @@ import java.util.List;
 
 import butterknife.BindView;
 import dev.niekirk.com.instagram4android.Instagram4Android;
+import dev.niekirk.com.instagram4android.requests.InstagramFollowRequest;
 import dev.niekirk.com.instagram4android.requests.InstagramGetUserInfoRequest;
+import dev.niekirk.com.instagram4android.requests.InstagramUnfollowRequest;
 import dev.niekirk.com.instagram4android.requests.InstagramUserFeedRequest;
 import dev.niekirk.com.instagram4android.requests.payload.InstagramFeedItem;
 import dev.niekirk.com.instagram4android.requests.payload.InstagramFeedResult;
@@ -84,6 +86,7 @@ public class UserProfileActivity extends BaseDrawerActivity implements RevealBac
     private String maxFeedId = null;
     private boolean isLoading = false;
     private boolean isLastPage = false;
+    private boolean isFavorite = false;
 
     public static void startUserProfileFromLocation(int[] startingLocation, Activity startingActivity, long userId) {
         Intent intent = new Intent(startingActivity, UserProfileActivity.class);
@@ -107,6 +110,21 @@ public class UserProfileActivity extends BaseDrawerActivity implements RevealBac
         setupTabs();
         setupUserProfileGrid();
         setupRevealBackground(savedInstanceState);
+        setupUserFollow();
+    }
+
+    private void setupUserFollow() {
+        btnFollow.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if (isFavorite)
+                    new Worker("UnFollow").execute(new String[]{});
+                else
+                    new Worker("Follow").execute(new String[]{});
+
+            }
+        });
     }
 
     private void setProfileInfo() {
@@ -131,7 +149,7 @@ public class UserProfileActivity extends BaseDrawerActivity implements RevealBac
         EndlessRecyclerViewScrollListener scrollListener = new EndlessRecyclerViewScrollListener(layoutManager) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-                Log.i("Hologram", "isLastPage isLoading" + isLastPage + "  " + isLoading);
+                Log.i("Hologram", "isLastPage isLoading " + isLastPage + "  " + isLoading);
                 if (!isLastPage && !isLoading) {
                     Log.i("Hologram", "get Feeds");
                     new UserProfileActivity.Worker("UserFeed").execute((String) null);
@@ -221,9 +239,59 @@ public class UserProfileActivity extends BaseDrawerActivity implements RevealBac
                 case "UserFeed":
                     getPhotos();
                     break;
+                case "Follow":
+                    setFollow();
+                    break;
+                case "UnFollow":
+                    setUnFollow();
+                    break;
             }
 
             return true;
+        }
+
+        public void setFollow() {
+            try {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        progressBar.setVisibility(View.VISIBLE);
+                    }
+                });
+                instagram.sendRequest(new InstagramFollowRequest(userId));
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        btnFollow.setText("دنبال نکردن");
+                        btnFollow.setBackground(getResources().getDrawable(R.drawable.btn_unfollowing));
+                        progressBar.setVisibility(View.GONE);
+                    }
+                });
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        public void setUnFollow() {
+            try {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        progressBar.setVisibility(View.VISIBLE);
+                    }
+                });
+                instagram.sendRequest(new InstagramUnfollowRequest(userId));
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        btnFollow.setText("دنبال کردن");
+                        btnFollow.setBackground(getResources().getDrawable(R.drawable.btn_following));
+                        progressBar.setVisibility(View.GONE);
+                    }
+                });
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
         // get user info
@@ -241,6 +309,21 @@ public class UserProfileActivity extends BaseDrawerActivity implements RevealBac
                 Log.i("Hologram", "User Id" + userId);
                 result = instagram.sendRequest(new InstagramGetUserInfoRequest(userId));
                 final InstagramUser user = result.getUser();
+
+                // check follow
+                final boolean follow = user.is_favorite();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (follow) {
+                            btnFollow.setText("دنبال نکردن");
+                            btnFollow.setBackground(getResources().getDrawable(R.drawable.btn_unfollowing));
+                        } else {
+                            btnFollow.setText("دنبال کردن");
+                            btnFollow.setBackground(getResources().getDrawable(R.drawable.btn_following));
+                        }
+                    }
+                });
 
                 profilePhoto = user.getProfile_pic_url();
 
