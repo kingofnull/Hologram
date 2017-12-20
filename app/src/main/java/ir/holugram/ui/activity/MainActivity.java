@@ -51,36 +51,26 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
     private static final int ANIM_DURATION_TOOLBAR = 300;
     private static final int ANIM_DURATION_FAB = 400;
     private static final int AFTER_LOGIN_SUCCESS = 500;
+    public Instagram4Android instagram;
     EndlessRecyclerViewScrollListener scrollListener;
-
     @BindView(R.id.rvFeed)
     RecyclerView rvFeed;
-
     @BindView(R.id.feedProgressBar)
     ProgressBar progressBar;
-
-
     @BindView(R.id.btnCreate)
     FloatingActionButton fabCreate;
     @BindView(R.id.content)
     CoordinatorLayout clContent;
-
     @BindView(R.id.feedsSwipeRefreshLayout)
     SwipeRefreshLayout feedsSwipeRefreshLayout;
-
-    private FeedAdapter feedAdapter;
-
-    private boolean pendingIntroAnimation;
-
-    public Instagram4Android instagram;
-    private Bundle savedInstanceState;
-
-    private String mFeedsMaxId = null;
-//    LinearLayoutManager linearLayoutManager;
-
     boolean isLoading = false;
     boolean isLastPage = false;
     boolean isRefresh = false;
+    private FeedAdapter feedAdapter;
+    //    LinearLayoutManager linearLayoutManager;
+    private boolean pendingIntroAnimation;
+    private Bundle savedInstanceState;
+    private String mFeedsMaxId = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -365,6 +355,21 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
         Snackbar.make(clContent, "Liked!", Snackbar.LENGTH_SHORT).show();
     }
 
+    @Override
+    public void onVideoClick(View v, int position) {
+        FeedAdapter.FeedItem feedItem = feedAdapter.feedItems.get(position);
+        InstagramVideoVersions video = feedItem.feedData.video_versions.get(feedItem.feedData.video_versions.size() - 1);
+        String videoUrl = video.getUrl();
+        Log.i("VideoUrl", videoUrl);
+        showVideo(videoUrl);
+    }
+
+    public void showVideo(String Url) {
+        Intent videoIntent = new Intent(this, VideoPlayerActivity.class);
+//        videoIntent.putExtra("url", "http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4");
+        videoIntent.putExtra("url", Url);
+        startActivity(videoIntent);
+    }
 
     public class UserFeedTask extends AsyncTask<Void, Void, Boolean> {
 
@@ -455,7 +460,7 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
                             });
 
 
-                            Thread.sleep(100);
+                            // Thread.sleep(100);
 
 
                         }
@@ -492,22 +497,6 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
         protected Void doInBackground(FeedAdapter.FeedItem... feedItems) {
             return null;
         }
-    }
-
-    @Override
-    public void onVideoClick(View v, int position) {
-        FeedAdapter.FeedItem feedItem = feedAdapter.feedItems.get(position);
-        InstagramVideoVersions video = feedItem.feedData.video_versions.get(feedItem.feedData.video_versions.size() - 1);
-        String videoUrl = video.getUrl();
-        Log.i("VideoUrl",videoUrl);
-        showVideo(videoUrl);
-    }
-
-    public void showVideo(String Url){
-        Intent videoIntent = new Intent(this, VideoPlayerActivity.class);
-//        videoIntent.putExtra("url", "http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4");
-        videoIntent.putExtra("url", Url);
-        startActivity(videoIntent);
     }
 
 }

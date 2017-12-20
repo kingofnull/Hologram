@@ -233,8 +233,6 @@ public class CommentsActivity extends BaseDrawerActivity implements SendCommentB
                             commentsAdapter.notifyItemInserted(commentsAdapter.commentItems.size() - 1);
                         }
                     });
-
-                    Thread.sleep(100);
                 }
 
                 runOnUiThread(new Runnable() {
@@ -284,7 +282,7 @@ public class CommentsActivity extends BaseDrawerActivity implements SendCommentB
                     }
                 });
 
-                Thread.sleep(100);
+                //Thread.sleep(100);
 
                 runOnUiThread(new Runnable() {
                     @Override

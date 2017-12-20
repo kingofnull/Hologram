@@ -131,6 +131,7 @@ public class UserProfileActivity extends BaseDrawerActivity implements RevealBac
         EndlessRecyclerViewScrollListener scrollListener = new EndlessRecyclerViewScrollListener(layoutManager) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
+                Log.i("Hologram", "isLastPage isLoading" + isLastPage + "  " + isLoading);
                 if (!isLastPage && !isLoading) {
                     Log.i("Hologram", "get Feeds");
                     new UserProfileActivity.Worker("UserFeed").execute((String) null);
@@ -279,7 +280,7 @@ public class UserProfileActivity extends BaseDrawerActivity implements RevealBac
                 });
 
             } catch (IOException e) {
-
+                Log.i("Hologram", "exception");
             }
 
         }
@@ -303,6 +304,7 @@ public class UserProfileActivity extends BaseDrawerActivity implements RevealBac
                 List<InstagramFeedItem> items = result.getItems();
 
                 if (result.getItems() == null) {
+                    Log.i("Hologram", "last page");
                     isLastPage = true;
                     isLoading = false;
                     runOnUiThread(new Runnable() {
@@ -323,22 +325,12 @@ public class UserProfileActivity extends BaseDrawerActivity implements RevealBac
                         continue;
 
                     userPhotosAdapter.add(new UserProfileAdapter.FeedItem(item));
-
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            userPhotosAdapter.setLockedAnimations(false);
-                            userPhotosAdapter.notifyItemInserted(userPhotosAdapter.feedItems.size() - 1);
-                        }
-                    });
-
-                    Thread.sleep(100);
                 }
 
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        //progressBar.setVisibility(View.INVISIBLE);
+                        userPhotosAdapter.notifyItemInserted(userPhotosAdapter.feedItems.size() - 1);
                         userPhotosAdapter.setLockedAnimations(false);
                     }
                 });
