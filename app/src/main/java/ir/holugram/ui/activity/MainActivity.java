@@ -336,15 +336,17 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
             url=f.feedData.getImage_versions2().getCandidates().get(0).getUrl();
 //            fileName=f.feedData.getCaption()+".jpg";
             fileName=f.itemId+".jpg";
+            downloadFromUrl(url,fileName,"در حال دانلود تصویر . . .");
         }else if(f.feedData.getMedia_type()==2){
             url = f.feedData.video_versions.get(0).getUrl();
 //            fileName=f.feedData.getCaption()+".mp4";
             fileName=f.itemId+".mp4";
+            downloadFromUrl(url,fileName,"در حال دانلود ویدیو . . .");
         }
 
-        if(url!=null){
-            downloadFromUrl(url,fileName);
-        }
+
+
+        FeedContextMenuManager.getInstance().hideContextMenu();
     }
 
     @Override
@@ -537,7 +539,7 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
         startActivity(videoIntent);
     }
 
-    public void downloadFromUrl(String url, String fileName) {
+    public void downloadFromUrl(String url, String fileName,String caption) {
         Log.e("DOWNLOAD-TRY",url);
         Log.e("DOWNLOAD-TRY",fileName);
 
@@ -547,8 +549,8 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
         request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI | DownloadManager.Request.NETWORK_MOBILE)
                 .setAllowedOverRoaming(false)
-                .setTitle("Demo")
-                .setDescription("Downloading via Your app name..")
+//                .setTitle("Demo")
+                .setDescription(caption)
                 .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
                 .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
         downloadManager.enqueue(request);
