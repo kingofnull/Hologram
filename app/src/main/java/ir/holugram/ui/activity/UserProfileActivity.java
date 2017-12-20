@@ -410,6 +410,8 @@ public class UserProfileActivity extends BaseDrawerActivity implements RevealBac
                     userPhotosAdapter.add(new UserProfileAdapter.FeedItem(item));
                 }
 
+                Thread.sleep(100);
+
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
