@@ -528,7 +528,7 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
         FeedAdapter.FeedItem feedItem = feedAdapter.feedItems.get(position);
         InstagramVideoVersions video = feedItem.feedData.video_versions.get(feedItem.feedData.video_versions.size() - 1);
         String videoUrl = video.getUrl();
-        Log.i("VideoUrl",videoUrl);
+//        Log.i("VideoUrl",videoUrl);
         showVideo(videoUrl);
     }
 
@@ -540,9 +540,8 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
     }
 
     public void downloadFromUrl(String url, String fileName,String caption) {
-        Log.e("DOWNLOAD-TRY",url);
-        Log.e("DOWNLOAD-TRY",fileName);
-
+//        Log.e("DOWNLOAD-TRY",url);
+//        Log.e("DOWNLOAD-TRY",fileName);
         url = url.replace(" ","%20");
         DownloadManager downloadManager = (DownloadManager) ((Activity) this).getSystemService(Context.DOWNLOAD_SERVICE);
 
@@ -554,12 +553,6 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
                 .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
                 .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
         downloadManager.enqueue(request);
-//        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(DownloadUrl));
-//        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
-//        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED); // to notify when download is complete
-//        request.allowScanningByMediaScanner();// if you want to be available from media players
-//        DownloadManager manager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
-//        manager.enqueue(request);
 
     }
 
