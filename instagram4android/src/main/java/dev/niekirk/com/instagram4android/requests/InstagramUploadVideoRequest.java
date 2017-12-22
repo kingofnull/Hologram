@@ -7,18 +7,17 @@ import android.media.ThumbnailUtils;
 import android.provider.MediaStore;
 import android.util.Log;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.concurrent.TimeUnit;
+
 import dev.niekirk.com.instagram4android.InstagramConstants;
 import dev.niekirk.com.instagram4android.requests.internal.InstagramConfigureVideoRequest;
 import dev.niekirk.com.instagram4android.requests.internal.InstagramExposeRequest;
 import dev.niekirk.com.instagram4android.requests.internal.InstagramUploadVideoJobRequest;
 import dev.niekirk.com.instagram4android.requests.payload.InstagramUploadVideoResult;
 import dev.niekirk.com.instagram4android.requests.payload.StatusResult;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.concurrent.TimeUnit;
-
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -104,7 +103,7 @@ public class InstagramUploadVideoRequest extends InstagramRequest<StatusResult> 
 
         try(FileOutputStream fos = new FileOutputStream(thumbnailFile)) {
 
-            Bitmap thumbnail = ThumbnailUtils.createVideoThumbnail(videoFile.getAbsolutePath(), MediaStore.Video.Thumbnails.FULL_SCREEN_KIND);
+            Bitmap thumbnail = ThumbnailUtils.createVideoThumbnail(videoFile.getAbsolutePath(), MediaStore.Video.Thumbnails.MINI_KIND);
             thumbnail.compress(Bitmap.CompressFormat.JPEG, 100, fos);
 
             MediaMetadataRetriever retriever = new MediaMetadataRetriever();
