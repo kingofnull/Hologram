@@ -15,7 +15,9 @@ import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 
 import butterknife.BindDimen;
@@ -59,6 +61,7 @@ public class BaseDrawerActivity extends BaseActivity {
         bindViews();
         setupHeader();
         setupNavItemListener();
+//        uploadTest();
 /*
         vNavigation.findViewById(R.id.menu_feed).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -116,13 +119,7 @@ public class BaseDrawerActivity extends BaseActivity {
         }, 200);
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
 
-
-        return true;
-    }
 
     public void setupNavItemListener() {
         vNavigation.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
@@ -133,26 +130,53 @@ public class BaseDrawerActivity extends BaseActivity {
                     case R.id.menu_feed:
                         Toast.makeText(BaseDrawerActivity.this, "TEST", Toast.LENGTH_SHORT).show();
 
-                        new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                String path = "/storage/emulated/0/Movies/lion-sample.mp4";
-                                File sdcard = Environment.getExternalStorageDirectory();
-                                //Get the text file
-                                File file = new File(sdcard,"/Movies/lion-sample.mp4");
-                                try {
-                                    Log.e("TRYUPLAOD", "start upload");
-                                    StatusResult r = instagram.sendRequest(new InstagramUploadVideoRequest(file, "Video posted with Instagram4j, how cool is that?"));
-                                    Log.i("UPLOAD", r.getMessage());
-                                } catch (IOException e) {
-                                    Log.e("UPLOAD",Log.getStackTraceString(e));
-                                }
-                            }
-                        }).start();
+
                         break;
                 }
                 return false;
             }
         });
+    }
+
+    public void uploadTest(){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+//                String path = "/storage/emulated/0/Movies/lion-sample.mp4";
+                File sdcard = Environment.getExternalStorageDirectory();
+                //Get the text file
+                File file = new File(sdcard,"/Movies/big_buck_bunny.mp4");
+
+                StringBuilder text = new StringBuilder();
+
+                try {
+                    BufferedReader br = new BufferedReader(new FileReader(file));
+                    String line;
+
+                    while ((line = br.readLine()) != null) {
+                        text.append(line);
+                        text.append('\n');
+                    }
+                    br.close();
+                }
+                catch (IOException e) {
+                    //You'll need to add proper error handling here
+
+                }
+
+                File file2 = new File(sdcard,"/Movies/222");
+                if(file.exists()){
+                    try {
+                        Log.e("TRYUPLAOD", "start upload");
+
+                        StatusResult r = instagram.sendRequest(new InstagramUploadVideoRequest(file, "Video posted with Instagram4j, how cool is that?",file2));
+                        Log.i("UPLOAD", r.getMessage());
+                    } catch (IOException e) {
+                        Log.e("UPLOAD",Log.getStackTraceString(e));
+                    }
+                }
+
+            }
+        }).start();
     }
 }
