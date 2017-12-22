@@ -1,5 +1,6 @@
 package ir.holugram.ui.activity;
 
+import android.content.Intent;
 import android.os.Environment;
 import android.os.Handler;
 import android.support.design.widget.NavigationView;
@@ -35,20 +36,17 @@ import ir.holugram.R;
  */
 public class BaseDrawerActivity extends BaseActivity {
 
+    public Instagram4Android instagram;
     @BindView(R.id.drawerLayout)
     DrawerLayout drawerLayout;
     @BindView(R.id.vNavigation)
     NavigationView vNavigation;
-
     @BindDimen(R.dimen.global_menu_avatar_size)
     int avatarSize;
     @BindString(R.string.user_profile_photo)
     String profilePhoto;
-
     //Cannot be bound via Butterknife, hosting view is initialized later (see setupHeader() method)
     private ImageView ivMenuUserProfilePhoto;
-
-    public Instagram4Android instagram;
 
     @Override
     public void setContentView(int layoutResID) {
@@ -120,7 +118,6 @@ public class BaseDrawerActivity extends BaseActivity {
     }
 
 
-
     public void setupNavItemListener() {
         vNavigation.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -132,20 +129,25 @@ public class BaseDrawerActivity extends BaseActivity {
 
 
                         break;
+                    case R.id.show_explore:
+                        drawerLayout.closeDrawers();
+                        Intent intent = new Intent(getApplicationContext(), ExploreActivity.class);
+                        startActivity(intent);
+                        break;
                 }
                 return false;
             }
         });
     }
 
-    public void uploadTest(){
+    public void uploadTest() {
         new Thread(new Runnable() {
             @Override
             public void run() {
 //                String path = "/storage/emulated/0/Movies/lion-sample.mp4";
                 File sdcard = Environment.getExternalStorageDirectory();
                 //Get the text file
-                File file = new File(sdcard,"/Movies/big_buck_bunny.mp4");
+                File file = new File(sdcard, "/Movies/big_buck_bunny.mp4");
 
                 StringBuilder text = new StringBuilder();
 
@@ -158,21 +160,20 @@ public class BaseDrawerActivity extends BaseActivity {
                         text.append('\n');
                     }
                     br.close();
-                }
-                catch (IOException e) {
+                } catch (IOException e) {
                     //You'll need to add proper error handling here
 
                 }
 
-                File file2 = new File(sdcard,"/Movies/222");
-                if(file.exists()){
+                File file2 = new File(sdcard, "/Movies/222");
+                if (file.exists()) {
                     try {
                         Log.e("TRYUPLAOD", "start upload");
 
-                        StatusResult r = instagram.sendRequest(new InstagramUploadVideoRequest(file, "Video posted with Instagram4j, how cool is that?",file2));
+                        StatusResult r = instagram.sendRequest(new InstagramUploadVideoRequest(file, "Video posted with Instagram4j, how cool is that?", file2));
                         Log.i("UPLOAD", r.getMessage());
                     } catch (IOException e) {
-                        Log.e("UPLOAD",Log.getStackTraceString(e));
+                        Log.e("UPLOAD", Log.getStackTraceString(e));
                     }
                 }
 
