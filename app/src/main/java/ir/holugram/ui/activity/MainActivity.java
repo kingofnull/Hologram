@@ -91,8 +91,6 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
     protected void onCreate(Bundle savedInstanceState) {
 
 
-
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -328,22 +326,22 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
 
     @Override
     public void onDownloadClick(int pos) {
-        FeedAdapter.FeedItem f=feedAdapter.feedItems.get(pos);
-       String url=null;
-       String fileName=null;
+        FeedAdapter.FeedItem f = feedAdapter.feedItems.get(pos);
+        String url = null;
+        String fileName = null;
 
-        if(f.feedData.getMedia_type()==1){
-            url=f.feedData.getImage_versions2().getCandidates().get(0).getUrl();
+        if (f.feedData.getMedia_type() == 1) {
+            url = f.feedData.getImage_versions2().getCandidates().get(0).getUrl();
 //            fileName=f.feedData.getCaption()+".jpg";
-            fileName=f.itemId+".jpg";
-        }else if(f.feedData.getMedia_type()==2){
+            fileName = f.itemId + ".jpg";
+        } else if (f.feedData.getMedia_type() == 2) {
             url = f.feedData.video_versions.get(0).getUrl();
 //            fileName=f.feedData.getCaption()+".mp4";
-            fileName=f.itemId+".mp4";
+            fileName = f.itemId + ".mp4";
         }
 
-        if(url!=null){
-            downloadFromUrl(url,fileName);
+        if (url != null) {
+            downloadFromUrl(url, fileName);
         }
     }
 
@@ -353,7 +351,9 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
     }
 
     @Override
-    public void onSharePhotoClick(int feedItem) {
+    public void onSharePhotoClick(int pos) {
+        FeedAdapter.FeedItem f=feedAdapter.feedItems.get(pos);
+        shareText(getString(R.string.share_subject), f.imgUrl);
         FeedContextMenuManager.getInstance().hideContextMenu();
     }
 
@@ -439,7 +439,7 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
         // fetch user feed
         public void getUserFeed() {
 
-                Log.i("Hologram", "Read User Feeds");
+            Log.i("Hologram", "Read User Feeds");
                 /*
                 InstagramUserFeedRequest request=new InstagramUserFeedRequest(instagram.getUserId(), mFeedsMaxId, (System.currentTimeMillis()/1000)-86400*7);
                 InstagramFeedResult result = instagram.sendRequest(request);
@@ -462,50 +462,50 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
                 mFeedsMaxId = result.getNext_max_id();
                 */
 
-                feedAdapter.showLoading(true);
-                try {
-                    InstagramTimelineFeedResult feedResult = instagram.sendRequest(new InstagramTimelineFeedRequest(mFeedsMaxId, null));
-                    feedAdapter.showLoading(false);
-                    Log.i("Hologram", "User feeds loaded!");
-                    for (InstagramTimelineFeedItem item : feedResult.getFeed_items()) {
-                        if (item.getMedia_or_ad() == null || item.getMedia_or_ad().getImage_versions2() == null ||
-                                item.getMedia_or_ad().getImage_versions2().getCandidates() == null) {
-                            Log.i("Hologram", "Add Feeds Skip");
-                        } else {
-                            Log.i("Hologram", "Add Feeds" + item.getMedia_or_ad().getImage_versions2().getCandidates().get(0).getUrl());
-                            feedAdapter.add(new FeedAdapter.FeedItem(item.getMedia_or_ad()));
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    feedAdapter.notifyItemInserted(feedAdapter.feedItems.size() - 1);
-                                }
-                            });
+            feedAdapter.showLoading(true);
+            try {
+                InstagramTimelineFeedResult feedResult = instagram.sendRequest(new InstagramTimelineFeedRequest(mFeedsMaxId, null));
+                feedAdapter.showLoading(false);
+                Log.i("Hologram", "User feeds loaded!");
+                for (InstagramTimelineFeedItem item : feedResult.getFeed_items()) {
+                    if (item.getMedia_or_ad() == null || item.getMedia_or_ad().getImage_versions2() == null ||
+                            item.getMedia_or_ad().getImage_versions2().getCandidates() == null) {
+                        Log.i("Hologram", "Add Feeds Skip");
+                    } else {
+                        Log.i("Hologram", "Add Feeds" + item.getMedia_or_ad().getImage_versions2().getCandidates().get(0).getUrl());
+                        feedAdapter.add(new FeedAdapter.FeedItem(item.getMedia_or_ad()));
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                feedAdapter.notifyItemInserted(feedAdapter.feedItems.size() - 1);
+                            }
+                        });
 
 
-                            Thread.sleep(100);
+                        Thread.sleep(100);
 
 
-                        }
                     }
-                    mFeedsMaxId = feedResult.getNext_max_id();
+                }
+                mFeedsMaxId = feedResult.getNext_max_id();
 
 
-                    if (mFeedsMaxId == null) {
-                        isLastPage = true;
+                if (mFeedsMaxId == null) {
+                    isLastPage = true;
+                }
+                Log.i("Hologram MaxId", mFeedsMaxId + "");
+
+
+            } catch (final JsonMappingException e1) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        //(String)
+                        Toast.makeText(getApplication(), getString(R.string.network_error), Toast.LENGTH_SHORT).show();
+                        Log.e("Hologram ", Log.getStackTraceString(e1));
                     }
-                    Log.i("Hologram MaxId", mFeedsMaxId + "");
-
-
-                }catch (final JsonMappingException e1){
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            //(String)
-                            Toast.makeText(getApplication(),getString(R.string.network_error),Toast.LENGTH_SHORT).show();
-                            Log.e("Hologram ", Log.getStackTraceString(e1));
-                        }
-                    });
-                } catch (Exception e) {
+                });
+            } catch (Exception e) {
                 Log.e("Hologram", Log.getStackTraceString(e));
             }
 
@@ -526,11 +526,11 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
         FeedAdapter.FeedItem feedItem = feedAdapter.feedItems.get(position);
         InstagramVideoVersions video = feedItem.feedData.video_versions.get(feedItem.feedData.video_versions.size() - 1);
         String videoUrl = video.getUrl();
-        Log.i("VideoUrl",videoUrl);
+        Log.i("VideoUrl", videoUrl);
         showVideo(videoUrl);
     }
 
-    public void showVideo(String Url){
+    public void showVideo(String Url) {
         Intent videoIntent = new Intent(this, VideoPlayerActivity.class);
 //        videoIntent.putExtra("url", "http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4");
         videoIntent.putExtra("url", Url);
@@ -538,10 +538,10 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
     }
 
     public void downloadFromUrl(String url, String fileName) {
-        Log.e("DOWNLOAD-TRY",url);
-        Log.e("DOWNLOAD-TRY",fileName);
+        Log.e("DOWNLOAD-TRY", url);
+        Log.e("DOWNLOAD-TRY", fileName);
 
-        url = url.replace(" ","%20");
+        url = url.replace(" ", "%20");
         DownloadManager downloadManager = (DownloadManager) ((Activity) this).getSystemService(Context.DOWNLOAD_SERVICE);
 
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
@@ -559,6 +559,20 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
 //        DownloadManager manager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
 //        manager.enqueue(request);
 
+    }
+
+
+    public void shareText(String subject, String text) {
+        try {
+            Intent i = new Intent(Intent.ACTION_SEND);
+            i.setType("text/plain");
+            i.putExtra(Intent.EXTRA_SUBJECT, subject);
+            i.putExtra(Intent.EXTRA_TEXT, text);
+            startActivity(Intent.createChooser(i, getString(R.string.share_choose)));
+        } catch (Exception e) {
+            //e.toString();
+            Log.e("ShareException", Log.getStackTraceString(e));
+        }
     }
 
 }

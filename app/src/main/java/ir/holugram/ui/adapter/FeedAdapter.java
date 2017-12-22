@@ -292,7 +292,8 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             ivFeedCenter.setImageDrawable(null);
             playBtn.setVisibility(View.GONE);
 
-            String imageUrl = feedItem.imgUrl;
+//            String imageUrl = feedItem.imgUrl;
+            String imageUrl = feedItem.feedData.getImage_versions2().getCandidates().get(feedItem.feedData.getImage_versions2().getCandidates().size() - 1).getUrl();
 
                 /*Picasso.with(context)
                         .load(feedItem.imgUrl)

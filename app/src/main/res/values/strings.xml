@@ -24,4 +24,6 @@
     <string name="network_error">خطای ارتباط با سرور!</string>
     <string name="title_activity_video_player">VideoPlayerActivity</string>
     <string name="btn_download">دانلود</string>
+    <string name="share_subject">اشتراک گذاری</string>
+    <string name="share_choose">اشتراک گذاری در </string>
 </resources>
