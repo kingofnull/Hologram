@@ -356,7 +356,7 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
     public void onSharePhotoClick(int pos) {
         FeedAdapter.FeedItem f=feedAdapter.feedItems.get(pos);
         String url="https://www.instagram.com/p/"+f.feedData.code;
-        shareText("3", url);
+        shareText("", url);
 //        Toast.makeText(this, f.feedData.code, Toast.LENGTH_SHORT).show();
         FeedContextMenuManager.getInstance().hideContextMenu();
     }
