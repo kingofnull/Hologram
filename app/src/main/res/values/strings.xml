@@ -27,4 +27,6 @@
     <string name="action_search">جستجو</string>
     <string name="share_subject">اشتراک گذاری</string>
     <string name="share_choose">اشتراک گذاری در </string>
+    <string name="share_menu">اشتراک گذاری</string>
+    <string name="cancel">انصراف</string>
 </resources>
