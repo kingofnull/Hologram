@@ -1,0 +1,15 @@
+package ir.holugram.ui.activity;
+
+import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+
+import ir.holugram.R;
+
+public class ExploreActivity extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_explore);
+    }
+}

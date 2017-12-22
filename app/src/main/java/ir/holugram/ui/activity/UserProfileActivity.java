@@ -82,6 +82,7 @@ public class UserProfileActivity extends BaseDrawerActivity implements RevealBac
     private int avatarSize;
     private String profilePhoto;
     private UserProfileAdapter userPhotosAdapter;
+    private EndlessRecyclerViewScrollListener scrollListener;
     private long userId;
     private String maxFeedId = null;
     private boolean isLoading = false;
@@ -145,12 +146,16 @@ public class UserProfileActivity extends BaseDrawerActivity implements RevealBac
     private void setupUserProfileGrid() {
         final StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL);
         rvUserProfile.setLayoutManager(layoutManager);
+        rvUserProfile.setHasFixedSize(true);
 
-        EndlessRecyclerViewScrollListener scrollListener = new EndlessRecyclerViewScrollListener(layoutManager) {
+        userPhotosAdapter = new UserProfileAdapter(this);
+        rvUserProfile.setAdapter(userPhotosAdapter);
+
+        scrollListener = new EndlessRecyclerViewScrollListener(layoutManager) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
                 Log.i("Hologram", "isLastPage isLoading " + isLastPage + "  " + isLoading);
-                if (!isLastPage && !isLoading) {
+                if (!isLastPage) {
                     Log.i("Hologram", "get Feeds");
                     new UserProfileActivity.Worker("UserFeed").execute((String) null);
                 }
@@ -158,8 +163,6 @@ public class UserProfileActivity extends BaseDrawerActivity implements RevealBac
         };
 
         rvUserProfile.addOnScrollListener(scrollListener);
-
-
     }
 
     private void setupRevealBackground(Bundle savedInstanceState) {
@@ -175,6 +178,7 @@ public class UserProfileActivity extends BaseDrawerActivity implements RevealBac
                     return true;
                 }
             });
+            new Worker("UserFeed").execute((String) null);
         } else {
             vRevealBackground.setToFinishedFrame();
             userPhotosAdapter.setLockedAnimations(true);
@@ -187,11 +191,11 @@ public class UserProfileActivity extends BaseDrawerActivity implements RevealBac
             rvUserProfile.setVisibility(View.VISIBLE);
             tlUserProfileTabs.setVisibility(View.VISIBLE);
             vUserProfileRoot.setVisibility(View.VISIBLE);
-            userPhotosAdapter = new UserProfileAdapter(this);
-            rvUserProfile.setAdapter(userPhotosAdapter);
+            //userPhotosAdapter = new UserProfileAdapter(this);
+            //rvUserProfile.setAdapter(userPhotosAdapter);
             animateUserProfileOptions();
             animateUserProfileHeader();
-            new Worker("UserFeed").execute((String) null);
+
         } else {
             tlUserProfileTabs.setVisibility(View.INVISIBLE);
             rvUserProfile.setVisibility(View.INVISIBLE);
@@ -390,13 +394,6 @@ public class UserProfileActivity extends BaseDrawerActivity implements RevealBac
                     Log.i("Hologram", "last page");
                     isLastPage = true;
                     isLoading = false;
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            //progressBar.setVisibility(View.INVISIBLE);
-                            userPhotosAdapter.setLockedAnimations(false);
-                        }
-                    });
                     return;
                 }
 
@@ -408,6 +405,7 @@ public class UserProfileActivity extends BaseDrawerActivity implements RevealBac
                         continue;
 
                     userPhotosAdapter.add(new UserProfileAdapter.FeedItem(item));
+
                 }
 
                 Thread.sleep(100);
@@ -416,7 +414,6 @@ public class UserProfileActivity extends BaseDrawerActivity implements RevealBac
                     @Override
                     public void run() {
                         userPhotosAdapter.notifyItemInserted(userPhotosAdapter.feedItems.size() - 1);
-                        userPhotosAdapter.setLockedAnimations(false);
                     }
                 });
 
@@ -439,7 +436,7 @@ public class UserProfileActivity extends BaseDrawerActivity implements RevealBac
         protected void onPostExecute(final Boolean success) {
 
             if (success) {
-
+                userPhotosAdapter.setLockedAnimations(false);
             } else {
 
             }

@@ -88,7 +88,7 @@ public class UserProfileAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     }
                 });
 
-        holder.playBtnProfile.setVisibility(View.GONE);
+        holder.playBtnProfile.setVisibility(View.INVISIBLE);
 
         if (item.feedData.media_type == 2) {
             holder.playBtnProfile.setVisibility(View.VISIBLE);
