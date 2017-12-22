@@ -4,6 +4,7 @@
     <Button
         android:id="@+id/btnDownload"
         style="@style/ContextMenuButton"
+        android:gravity="center_horizontal|center_vertical"
         android:text="@string/btn_download"/>
 
 <Button

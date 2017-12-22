@@ -333,16 +333,18 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
         if (f.feedData.getMedia_type() == 1) {
             url = f.feedData.getImage_versions2().getCandidates().get(0).getUrl();
 //            fileName=f.feedData.getCaption()+".jpg";
-            fileName = f.itemId + ".jpg";
-        } else if (f.feedData.getMedia_type() == 2) {
+            fileName=f.itemId+".jpg";
+            downloadFromUrl(url,fileName,"در حال دانلود تصویر . . .");
+        }else if(f.feedData.getMedia_type()==2){
             url = f.feedData.video_versions.get(0).getUrl();
 //            fileName=f.feedData.getCaption()+".mp4";
-            fileName = f.itemId + ".mp4";
+            fileName=f.itemId+".mp4";
+            downloadFromUrl(url,fileName,"در حال دانلود ویدیو . . .");
         }
 
-        if (url != null) {
-            downloadFromUrl(url, fileName);
-        }
+
+
+        FeedContextMenuManager.getInstance().hideContextMenu();
     }
 
     @Override
@@ -526,7 +528,7 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
         FeedAdapter.FeedItem feedItem = feedAdapter.feedItems.get(position);
         InstagramVideoVersions video = feedItem.feedData.video_versions.get(feedItem.feedData.video_versions.size() - 1);
         String videoUrl = video.getUrl();
-        Log.i("VideoUrl", videoUrl);
+//        Log.i("VideoUrl",videoUrl);
         showVideo(videoUrl);
     }
 
@@ -537,27 +539,20 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
         startActivity(videoIntent);
     }
 
-    public void downloadFromUrl(String url, String fileName) {
-        Log.e("DOWNLOAD-TRY", url);
-        Log.e("DOWNLOAD-TRY", fileName);
-
-        url = url.replace(" ", "%20");
+    public void downloadFromUrl(String url, String fileName,String caption) {
+//        Log.e("DOWNLOAD-TRY",url);
+//        Log.e("DOWNLOAD-TRY",fileName);
+        url = url.replace(" ","%20");
         DownloadManager downloadManager = (DownloadManager) ((Activity) this).getSystemService(Context.DOWNLOAD_SERVICE);
 
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
         request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI | DownloadManager.Request.NETWORK_MOBILE)
                 .setAllowedOverRoaming(false)
-                .setTitle("Demo")
-                .setDescription("Downloading via Your app name..")
+//                .setTitle("Demo")
+                .setDescription(caption)
                 .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
                 .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
         downloadManager.enqueue(request);
-//        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(DownloadUrl));
-//        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
-//        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED); // to notify when download is complete
-//        request.allowScanningByMediaScanner();// if you want to be available from media players
-//        DownloadManager manager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
-//        manager.enqueue(request);
 
     }
 

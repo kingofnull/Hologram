@@ -2,32 +2,43 @@
     <group android:id="@+id/menu_group_1">
         <item
             android:id="@+id/menu_feed"
+            android:enabled="true"
             android:icon="@drawable/ic_global_menu_feed"
-            android:title="My Feed" />
+            android:title="My Feed TEST" />
         <item
             android:id="@+id/menu_direct"
+            android:enabled="false"
             android:icon="@drawable/ic_global_menu_direct"
             android:title="Instagram Direct" />
         <item
             android:id="@+id/menu_news"
+            android:enabled="false"
             android:icon="@drawable/ic_global_menu_news"
             android:title="News" />
         <item
             android:id="@+id/menu_popular"
+            android:enabled="false"
             android:icon="@drawable/ic_global_menu_popular"
             android:title="Popular" />
         <item
             android:id="@+id/menu_photos_nearby"
+            android:enabled="false"
             android:icon="@drawable/ic_global_menu_nearby"
             android:title="Photos Nearby" />
         <item
             android:id="@+id/menu_photo_you_liked"
+            android:enabled="false"
             android:icon="@drawable/ic_global_menu_likes"
             android:title="Photos You've Liked" />
+        <item
+            android:id="@+id/show_explore"
+            android:icon="@drawable/ic_global_menu_search"
+            android:title="Explore" />
     </group>
     <group android:id="@+id/menu_group_2">
         <item
             android:id="@+id/menu_settings"
+            android:enabled="false"
             android:title="Settings" />
         <item
             android:id="@+id/menu_about"

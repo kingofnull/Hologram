@@ -284,7 +284,7 @@ public class CommentsActivity extends BaseDrawerActivity implements SendCommentB
                     }
                 });
 
-                Thread.sleep(100);
+                //Thread.sleep(100);
 
                 runOnUiThread(new Runnable() {
                     @Override
