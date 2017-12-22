@@ -1,5 +1,6 @@
 package ir.holugram.ui.activity;
 
+import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
@@ -7,14 +8,18 @@ import android.app.Activity;
 import android.app.DownloadManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v13.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -52,6 +57,7 @@ import ir.holugram.ui.view.FeedContextMenuManager;
 public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFeedItemClickListener,
         FeedContextMenu.OnFeedContextMenuItemClickListener {
     public static final String ACTION_SHOW_LOADING_ITEM = "action_show_loading_item";
+    private static final int PERMISSION_REQUEST_CODE = 1;
 
     private static final int ANIM_DURATION_TOOLBAR = 300;
     private static final int ANIM_DURATION_FAB = 400;
@@ -93,6 +99,23 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        if (Build.VERSION.SDK_INT >= 23)
+        {
+            if (checkPermission())
+            {
+                // Code for above or equal 23 API Oriented Device
+                // Your Permission granted already .Do next code
+            } else {
+                requestPermission(); // Code for permission
+            }
+        }
+        else
+        {
+
+            // Code for Below 23 API Oriented Device
+            // Do next code
+        }
 
         if (getIntent().getBooleanExtra("EXIT", false)) {
             finish();
@@ -350,6 +373,7 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
     @Override
     public void onReportClick(int feedItem) {
         FeedContextMenuManager.getInstance().hideContextMenu();
+
     }
 
     @Override
@@ -542,6 +566,7 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
     }
 
     public void downloadFromUrl(String url, String fileName,String caption) {
+
 //        Log.e("DOWNLOAD-TRY",url);
 //        Log.e("DOWNLOAD-TRY",fileName);
         url = url.replace(" ","%20");
@@ -559,7 +584,22 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
     }
 
 
+    public boolean checkWriteAccess(){
+        if (checkCallingOrSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+            Log.v("","Permission is granted");
+            //File write logic here
+            return true;
+        }else{
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+            return false;
+        }
+    }
+
+
     public void shareText(String subject, String text) {
+        if(!checkWriteAccess()){
+            return;
+        }
         try {
             Intent i = new Intent(Intent.ACTION_SEND);
             i.setType("text/plain");
@@ -572,4 +612,35 @@ public class MainActivity extends BaseDrawerActivity implements FeedAdapter.OnFe
         }
     }
 
+
+    private boolean checkPermission() {
+        int result = ContextCompat.checkSelfPermission(MainActivity.this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if (result == PackageManager.PERMISSION_GRANTED) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private void requestPermission() {
+
+        if (ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            Toast.makeText(MainActivity.this, "Write External Storage permission allows us to do store images. Please allow this permission in App Settings.", Toast.LENGTH_LONG).show();
+        } else {
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_REQUEST_CODE);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSION_REQUEST_CODE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Log.e("value", "Permission Granted, Now you can use local drive .");
+                } else {
+                    Log.e("value", "Permission Denied, You cannot use local drive .");
+                }
+                break;
+        }
+    }
 }
