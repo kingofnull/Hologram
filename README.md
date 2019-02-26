@@ -4,7 +4,7 @@ this app planed to be released in Iran in Cafe-Bazar and other local market but 
 Any commercial use is denied and need permission request.
 
 
-<div style="direction: rtl; text-align: right">
+<DIV dir="RTL">
 
 # هلو گرام
 هلوگرام یک برنامه بر پایه API 
@@ -12,4 +12,4 @@ Any commercial use is denied and need permission request.
 این اپ قرار بود در مارکت های ایرانی همچون کافه بازار منتشر شود ولی به دلیل محدودیت های ایجاد شده از طرف آن ها و درخواست اجازه رسمی اینستا گرام و عدم توانایی ما در کسب آن ما تصمیم به انتشار سورس آن گرفتیم.
 هرگونه استفاده تجاری نیاز به کسب اجازه دارد. 
 
-</div>
+</DIV>
